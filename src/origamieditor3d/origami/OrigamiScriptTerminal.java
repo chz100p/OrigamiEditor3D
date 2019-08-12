@@ -48,22 +48,24 @@ public class OrigamiScriptTerminal {
         this.filename = fajlnev;
         this.TerminalCamera = new Camera(0, 0, 1);
     }
+
     final private Integer maxVersion = 1;
     private Access access;
-    //
-    //betöltött terminál mezők
+	//
+    // betöltött terminál mezők
     private Integer version = 1;
-    //
-    //eltárolt terminál mezők
+	//
+    // eltárolt terminál mezők
     private ArrayList<String> history;
 
     public ArrayList<String> history() {
 
         return history;
     }
+
     private String filename;
-    //
-    //betöltött szerkesztési mezők
+	//
+    // betöltött szerkesztési mezők
     private double[] ppoint;
     private double[] pnormal;
     private double[] tracker;
@@ -71,8 +73,8 @@ public class OrigamiScriptTerminal {
     private ArrayList<double[]> corners;
     private Origami.PaperType papertype;
     private String title;
-    //
-    //eltárolt szerkesztési mezők
+	//
+    // eltárolt szerkesztési mezők
     public Origami TerminalOrigami;
     public Camera TerminalCamera;
 
@@ -118,6 +120,7 @@ public class OrigamiScriptTerminal {
 
         abstract void execute(String... args) throws Exception;
     }
+
     final private HashMap<String, Command> Commands = new HashMap<>();
     final private HashMap<String, Command> Params = new HashMap<>();
 
@@ -293,19 +296,18 @@ public class OrigamiScriptTerminal {
         });
     }
 
-    /* ///////////////////////////
-     * SZERKESZTÉSI PARAMÉTEREK
-     *////////////////////////////
+    /*
+     * ///////////////////////////
+     * EDITOR PARAMETERS
+     */// /////////////////////////
     private void plane(String... args) throws Exception {
 
         switch (version) {
 
-            case 1:
+            default:
                 plane1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -313,12 +315,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 planethrough1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -326,12 +326,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 angle_bisector1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -339,12 +337,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 planepoint1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -352,12 +348,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 planenormal1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -365,12 +359,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 target1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -378,12 +370,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 angle1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -391,12 +381,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 paper1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -404,12 +392,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 corner1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -422,32 +408,20 @@ public class OrigamiScriptTerminal {
 
             if (pt.length == 3 && nv.length == 3) {
 
-                ppoint = new double[]{
-                    Double.parseDouble(pt[0]),
-                    Double.parseDouble(pt[1]),
-                    Double.parseDouble(pt[2])
-                };
+                ppoint = new double[]{Double.parseDouble(pt[0]),
+                    Double.parseDouble(pt[1]), Double.parseDouble(pt[2])};
 
-                pnormal = new double[]{
-                    Double.parseDouble(nv[0]),
-                    Double.parseDouble(nv[1]),
-                    Double.parseDouble(nv[2])
-                };
+                pnormal = new double[]{Double.parseDouble(nv[0]),
+                    Double.parseDouble(nv[1]), Double.parseDouble(nv[2])};
 
             } else if (pt.length == 2 && nv.length == 3) {
 
-                ppoint = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pt[0]),
-                            Double.parseDouble(pt[1])
-                        }).trackPoint();
+                ppoint = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pt[0]), Double.parseDouble(pt[1])})
+                        .trackPoint();
 
-                pnormal = new double[]{
-                    Double.parseDouble(nv[0]),
-                    Double.parseDouble(nv[1]),
-                    Double.parseDouble(nv[2])
-                };
+                pnormal = new double[]{Double.parseDouble(nv[0]),
+                    Double.parseDouble(nv[1]), Double.parseDouble(nv[2])};
 
             } else {
                 throw OrigamiException.H007;
@@ -470,65 +444,52 @@ public class OrigamiScriptTerminal {
 
             if (pont1.length == 3) {
 
-                pt1 = new double[]{
-                    Double.parseDouble(pont1[0]),
+                pt1 = new double[]{Double.parseDouble(pont1[0]),
                     Double.parseDouble(pont1[1]),
-                    Double.parseDouble(pont1[2])
-                };
+                    Double.parseDouble(pont1[2])};
             } else if (pont1.length == 2) {
 
-                pt1 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont1[0]),
-                            Double.parseDouble(pont1[1])
-                        }).trackPoint();
+                pt1 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont1[0]),
+                    Double.parseDouble(pont1[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
 
             if (pont2.length == 3) {
 
-                pt2 = new double[]{
-                    Double.parseDouble(pont2[0]),
+                pt2 = new double[]{Double.parseDouble(pont2[0]),
                     Double.parseDouble(pont2[1]),
-                    Double.parseDouble(pont2[2])
-                };
+                    Double.parseDouble(pont2[2])};
             } else if (pont2.length == 2) {
 
-                pt2 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont2[0]),
-                            Double.parseDouble(pont2[1])
-                        }).trackPoint();
+                pt2 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont2[0]),
+                    Double.parseDouble(pont2[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
 
             if (pont3.length == 3) {
 
-                pt3 = new double[]{
-                    Double.parseDouble(pont3[0]),
+                pt3 = new double[]{Double.parseDouble(pont3[0]),
                     Double.parseDouble(pont3[1]),
-                    Double.parseDouble(pont3[2])
-                };
+                    Double.parseDouble(pont3[2])};
             } else if (pont3.length == 2) {
 
-                pt3 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont3[0]),
-                            Double.parseDouble(pont3[1])
-                        }).trackPoint();
+                pt3 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont3[0]),
+                    Double.parseDouble(pont3[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
 
-            if (Origami.vector_length(Origami.vector_product(Origami.vector(pt2, pt1), Origami.vector(pt3, pt1))) != 0d) {
+            if (Origami.vector_length(Origami.vector_product(
+                    Origami.vector(pt2, pt1), Origami.vector(pt3, pt1))) != 0d) {
 
                 ppoint = pt1;
-                pnormal = Origami.vector_product(Origami.vector(pt2, pt1), Origami.vector(pt3, pt1));
+                pnormal = Origami.vector_product(Origami.vector(pt2, pt1),
+                        Origami.vector(pt3, pt1));
             } else {
                 throw OrigamiException.H008;
             }
@@ -549,62 +510,49 @@ public class OrigamiScriptTerminal {
 
             if (pont1.length == 3) {
 
-                pt1 = new double[]{
-                    Double.parseDouble(pont1[0]),
+                pt1 = new double[]{Double.parseDouble(pont1[0]),
                     Double.parseDouble(pont1[1]),
-                    Double.parseDouble(pont1[2])
-                };
+                    Double.parseDouble(pont1[2])};
             } else if (pont1.length == 2) {
 
-                pt1 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont1[0]),
-                            Double.parseDouble(pont1[1])
-                        }).trackPoint();
+                pt1 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont1[0]),
+                    Double.parseDouble(pont1[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
 
             if (pont2.length == 3) {
 
-                pt2 = new double[]{
-                    Double.parseDouble(pont2[0]),
+                pt2 = new double[]{Double.parseDouble(pont2[0]),
                     Double.parseDouble(pont2[1]),
-                    Double.parseDouble(pont2[2])
-                };
+                    Double.parseDouble(pont2[2])};
             } else if (pont2.length == 2) {
 
-                pt2 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont2[0]),
-                            Double.parseDouble(pont2[1])
-                        }).trackPoint();
+                pt2 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont2[0]),
+                    Double.parseDouble(pont2[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
 
             if (pont3.length == 3) {
 
-                pt3 = new double[]{
-                    Double.parseDouble(pont3[0]),
+                pt3 = new double[]{Double.parseDouble(pont3[0]),
                     Double.parseDouble(pont3[1]),
-                    Double.parseDouble(pont3[2])
-                };
+                    Double.parseDouble(pont3[2])};
             } else if (pont3.length == 2) {
 
-                pt3 = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pont3[0]),
-                            Double.parseDouble(pont3[1])
-                        }).trackPoint();
+                pt3 = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pont3[0]),
+                    Double.parseDouble(pont3[1])}).trackPoint();
             } else {
                 throw OrigamiException.H007;
             }
             ppoint = pt2;
-            pnormal = Origami.vector(Origami.length_to_100(Origami.vector(pt1, pt2)), Origami.length_to_100(Origami.vector(pt3, pt2)));
+            pnormal = Origami.vector(
+                    Origami.length_to_100(Origami.vector(pt1, pt2)),
+                    Origami.length_to_100(Origami.vector(pt3, pt2)));
 
             if (Origami.vector_length(pnormal) == 0.) {
                 throw OrigamiException.H012;
@@ -623,20 +571,14 @@ public class OrigamiScriptTerminal {
 
             if (pt.length == 3) {
 
-                ppoint = new double[]{
-                    Double.parseDouble(pt[0]),
-                    Double.parseDouble(pt[1]),
-                    Double.parseDouble(pt[2])
-                };
+                ppoint = new double[]{Double.parseDouble(pt[0]),
+                    Double.parseDouble(pt[1]), Double.parseDouble(pt[2])};
 
             } else if (pt.length == 2) {
 
-                ppoint = new TrackedOrigami(
-                        TerminalOrigami,
-                        new double[]{
-                            Double.parseDouble(pt[0]),
-                            Double.parseDouble(pt[1])
-                        }).trackPoint();
+                ppoint = new OrigamiTracker(TerminalOrigami, new double[]{
+                    Double.parseDouble(pt[0]), Double.parseDouble(pt[1])})
+                        .trackPoint();
 
             } else {
                 throw OrigamiException.H007;
@@ -655,11 +597,8 @@ public class OrigamiScriptTerminal {
 
             if (nv.length == 3) {
 
-                pnormal = new double[]{
-                    Double.parseDouble(nv[0]),
-                    Double.parseDouble(nv[1]),
-                    Double.parseDouble(nv[2])
-                };
+                pnormal = new double[]{Double.parseDouble(nv[0]),
+                    Double.parseDouble(nv[1]), Double.parseDouble(nv[2])};
 
             } else {
                 throw OrigamiException.H007;
@@ -678,10 +617,8 @@ public class OrigamiScriptTerminal {
 
             if (maghely.length == 2) {
 
-                tracker = new double[]{
-                    Double.parseDouble(maghely[0]),
-                    Double.parseDouble(maghely[1])
-                };
+                tracker = new double[]{Double.parseDouble(maghely[0]),
+                    Double.parseDouble(maghely[1])};
             } else {
                 throw OrigamiException.H007;
             }
@@ -718,22 +655,14 @@ public class OrigamiScriptTerminal {
             if (bajf.length == 4) {
 
                 corners = new ArrayList<>(Arrays.asList(new double[][]{}));
-                corners.add(new double[]{
-                    Double.parseDouble(bajf[0]),
-                    Double.parseDouble(bajf[1])
-                });
-                corners.add(new double[]{
-                    Double.parseDouble(bajf[0]),
-                    Double.parseDouble(bajf[3])
-                });
-                corners.add(new double[]{
-                    Double.parseDouble(bajf[2]),
-                    Double.parseDouble(bajf[1])
-                });
-                corners.add(new double[]{
-                    Double.parseDouble(bajf[2]),
-                    Double.parseDouble(bajf[3])
-                });
+                corners.add(new double[]{Double.parseDouble(bajf[0]),
+                    Double.parseDouble(bajf[1])});
+                corners.add(new double[]{Double.parseDouble(bajf[0]),
+                    Double.parseDouble(bajf[3])});
+                corners.add(new double[]{Double.parseDouble(bajf[2]),
+                    Double.parseDouble(bajf[1])});
+                corners.add(new double[]{Double.parseDouble(bajf[2]),
+                    Double.parseDouble(bajf[3])});
 
             } else if (bajf.length == 1) {
 
@@ -774,10 +703,8 @@ public class OrigamiScriptTerminal {
 
             if (koo.length == 2) {
 
-                corners.add(new double[]{
-                    Double.parseDouble(koo[0]),
-                    Double.parseDouble(koo[1])
-                });
+                corners.add(new double[]{Double.parseDouble(koo[0]),
+                    Double.parseDouble(koo[1])});
             } else {
                 throw OrigamiException.H007;
             }
@@ -787,19 +714,17 @@ public class OrigamiScriptTerminal {
         }
     }
 
-    /* ///////////////////////////
-     * SZERKESZTÉSI PARANCSOK
-     *////////////////////////////
+    /*
+     * ///////////////////////////
+     * EDITOR COMMANDS
+     */// /////////////////////////
     private void NEW() throws Exception {
 
         switch (version) {
 
-            case 1:
+            default:
                 NEW1();
                 break;
-
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -807,12 +732,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 ROTATE1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -820,12 +743,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 REFLECT1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -833,12 +754,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 UNDO1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -846,12 +765,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 REDO1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -861,14 +778,14 @@ public class OrigamiScriptTerminal {
         if (papertype == Origami.PaperType.Custom) {
 
             try {
-                TerminalOrigami = new Origami(corners);
+                TerminalOrigami = new OrigamiGen2(corners);
             } catch (Exception ex) {
                 throw OrigamiException.H001;
             }
             paramReset();
         } else {
 
-            TerminalOrigami = new Origami(papertype);
+            TerminalOrigami = new OrigamiGen2(papertype);
             paramReset();
         }
     }
@@ -879,13 +796,13 @@ public class OrigamiScriptTerminal {
             if (TerminalOrigami.rotationFold(ppoint, pnormal, phi) == 1) {
                 undo(1);
             }
-        } else if (ppoint != null && pnormal != null && phi != null && tracker != null) {
+        } else if (ppoint != null && pnormal != null && phi != null
+                && tracker != null) {
 
             TerminalOrigami.crease(ppoint, pnormal);
 
-            int mag = new TrackedOrigami(
-                    TerminalOrigami,
-                    tracker).trackPolygon();
+            int mag = new OrigamiTracker(TerminalOrigami, tracker)
+                    .trackPolygon();
 
             TerminalOrigami.rotationFold(ppoint, pnormal, phi, mag);
         } else {
@@ -904,9 +821,8 @@ public class OrigamiScriptTerminal {
 
             TerminalOrigami.crease(ppoint, pnormal);
 
-            int mag = new TrackedOrigami(
-                    TerminalOrigami,
-                    tracker).trackPolygon();
+            int mag = new OrigamiTracker(TerminalOrigami, tracker)
+                    .trackPolygon();
 
             TerminalOrigami.reflectionFold(ppoint, pnormal, mag);
         } else {
@@ -932,9 +848,10 @@ public class OrigamiScriptTerminal {
         paramReset();
     }
 
-    /* ///////////////////////////
-     * TERMINÁL PARAMÉTEREK
-     *////////////////////////////
+    /*
+     * ///////////////////////////
+     * TERMINAL PARAMETERS
+     */// /////////////////////////
     private void version(String... args) throws Exception {
 
         if (args.length == 1) {
@@ -954,12 +871,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 filename1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -967,12 +882,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 title1(args);
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1001,19 +914,18 @@ public class OrigamiScriptTerminal {
         }
     }
 
-    /* ///////////////////////////
-     * TERMINÁL PARANCSOK
-     *////////////////////////////
+    /*
+     * ///////////////////////////
+     * TERMINAL COMMANDS
+     */// /////////////////////////
     private void DIAGNOSTICS() throws Exception {
 
         switch (version) {
 
-            case 1:
+            default:
                 DIAGNOSTICS1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1021,12 +933,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 COMPILE1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1034,12 +944,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 LOAD1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1047,12 +955,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 OPEN1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1060,12 +966,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 EXPORT_CTM1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1073,12 +977,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 EXPORT_AUTOPDF1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1086,12 +988,10 @@ public class OrigamiScriptTerminal {
 
         switch (version) {
 
-            case 1:
+            default:
                 EXPORT_ORI1();
                 break;
 
-            default:
-                throw OrigamiException.H006;
         }
     }
 
@@ -1099,22 +999,35 @@ public class OrigamiScriptTerminal {
 
         if (this.access != Access.DEV) {
 
-            System.out.println("TerminalOrigami.vertices_size == " + Integer.toString(TerminalOrigami.vertices_size()));
-            System.out.println("TerminalOrigami.polygons_size == " + Integer.toString(TerminalOrigami.polygons_size()));
-            for (int i=0; i<TerminalOrigami.polygons_size(); i++) {
-            	
-            	System.out.print("polygon " + i + ": ");
-            	for (int vert : TerminalOrigami.polygons().get(i)) {
-            		
-            		System.out.print(vert);
-            		System.out.print(" ");
-            	}
-            	System.out.println();
+            System.out.println("TerminalOrigami.vertices_size == "
+                    + Integer.toString(TerminalOrigami.vertices_size()));
+            System.out.println("TerminalOrigami.polygons_size == "
+                    + Integer.toString(TerminalOrigami.polygons_size()));
+            for (int i = 0; i < TerminalOrigami.vertices_size(); i++) {
+
+                System.out.print("planar vertex " + i + ": ");
+                for (double comp : TerminalOrigami.vertices_2d().get(i)) {
+
+                    System.out.print(comp);
+                    System.out.print(" ");
+                }
+                System.out.println();
+            }
+            for (int i = 0; i < TerminalOrigami.polygons_size(); i++) {
+
+                System.out.print("polygon " + i + ": ");
+                for (int vert : TerminalOrigami.polygons().get(i)) {
+
+                    System.out.print(vert);
+                    System.out.print(" ");
+                }
+                System.out.println();
             }
             System.out.println("TerminalOrigami.corners:");
             for (double[] pont : TerminalOrigami.corners()) {
 
-                System.out.println(Double.toString(pont[0]) + " " + Double.toString(pont[1]));
+                System.out.println(Double.toString(pont[0]) + " "
+                        + Double.toString(pont[1]));
             }
         } else {
             throw OrigamiException.H011;
@@ -1127,14 +1040,16 @@ public class OrigamiScriptTerminal {
 
             if (filename != null) {
 
-                try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+                try (BufferedReader br = new BufferedReader(new FileReader(
+                        filename))) {
 
                     String bajtok = "", sor;
                     while ((sor = br.readLine()) != null) {
                         bajtok += sor + " ";
                     }
 
-                    OrigamiScriptTerminal homokozo = new OrigamiScriptTerminal(OrigamiScriptTerminal.Access.USER, filename);
+                    OrigamiScriptTerminal homokozo = new OrigamiScriptTerminal(
+                            OrigamiScriptTerminal.Access.USER, filename);
                     homokozo.execute(bajtok);
                 }
             } else {
@@ -1155,7 +1070,8 @@ public class OrigamiScriptTerminal {
             history.add("version 1 filename [" + filename + "] load");
             if (filename != null) {
 
-                try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+                try (BufferedReader br = new BufferedReader(new FileReader(
+                        filename))) {
 
                     String bajtok = "", sor;
                     while ((sor = br.readLine()) != null) {
@@ -1182,7 +1098,7 @@ public class OrigamiScriptTerminal {
             history.add("version 1 filename [" + filename + "] open");
             if (filename != null) {
 
-                this.TerminalOrigami = OrigamiIO.read2(filename);
+                this.TerminalOrigami = OrigamiIO.read_gen2(filename);
             } else {
                 throw OrigamiException.H010;
             }
@@ -1219,7 +1135,7 @@ public class OrigamiScriptTerminal {
 
         if (filename != null) {
 
-            OrigamiIO.write(TerminalOrigami, filename);
+            OrigamiIO.write_gen2(TerminalOrigami, filename);
         } else {
             throw OrigamiException.H010;
         }
@@ -1229,7 +1145,7 @@ public class OrigamiScriptTerminal {
 
     static public String obfuscate(String code) {
 
-        //1. lépés: kommentek eltávolítása
+        // 1. lépés: kommentek eltávolítása
         String result = "";
         boolean phys = true;
         for (int i = 0; i < code.length(); i++) {
@@ -1245,15 +1161,15 @@ public class OrigamiScriptTerminal {
             }
         }
 
-        //2. lépés: hiányzó szóközök pótlása
+        // 2. lépés: hiányzó szóközök pótlása
         result = result.replace("[", " [");
         result = result.replace("]", "] ");
 
-        //3. lépés: tabulátorok és sortörések eltávolítása
+        // 3. lépés: tabulátorok és sortörések eltávolítása
         result = result.replace((char) 9, ' ');
         result = result.replace((char) 10, ' ');
 
-        //4. lépés: többszörös szóközök összevonása
+        // 4. lépés: többszörös szóközök összevonása
         int tmp_hossz = -1;
         while (tmp_hossz != result.length()) {
 
@@ -1261,7 +1177,7 @@ public class OrigamiScriptTerminal {
             result = result.replace("  ", " ");
         }
 
-        //5. lépés: szögletes zárójelen belüli szóközök cseréje _-ra.
+        // 5. lépés: szögletes zárójelen belüli szóközök cseréje _-ra.
         boolean param = false;
         for (int i = 0; i < result.length() - 1; i++) {
 
@@ -1301,12 +1217,14 @@ public class OrigamiScriptTerminal {
                         ArrayList<String> argumentumok = new ArrayList<>();
                         for (int ii = i + 1; ii < szavak.length; ii++) {
 
-                            if (Commands.containsKey(szavak[ii]) || Params.containsKey(szavak[ii])) {
+                            if (Commands.containsKey(szavak[ii])
+                                    || Params.containsKey(szavak[ii])) {
                                 break;
                             }
 
                             if (!szavak[ii].equals("")) {
-                                argumentumok.add(szavak[ii].replace("[", "").replace("]", "").replace("_", " "));
+                                argumentumok.add(szavak[ii].replace("[", "")
+                                        .replace("]", "").replace("_", " "));
                             }
                         }
 
@@ -1332,10 +1250,10 @@ public class OrigamiScriptTerminal {
         Access tmp = this.access;
         this.access = access;
         try {
-        	execute(code);
+            execute(code);
         } catch (Exception ex) {
-        	this.access = tmp;
-        	throw ex;
+            this.access = tmp;
+            throw ex;
         }
         this.access = tmp;
     }

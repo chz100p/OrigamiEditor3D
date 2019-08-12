@@ -248,12 +248,12 @@ public class Origami {
     public PaperType papertype() {
         return papertype;
     }
-    private ArrayList<double[]> corners = new ArrayList<>(Arrays.asList(new double[][]{}));
+    protected ArrayList<double[]> corners = new ArrayList<>(Arrays.asList(new double[][]{}));
 
     public ArrayList<double[]> corners() {
         return corners;
     }
-    private ArrayList<double[]> vertices2d = new ArrayList<>(Arrays.asList(new double[][]{}));
+    protected ArrayList<double[]> vertices2d = new ArrayList<>(Arrays.asList(new double[][]{}));
 
     public ArrayList<double[]> vertices_2d() {
         return vertices2d;

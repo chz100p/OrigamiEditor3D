@@ -12,7 +12,7 @@
 // along with this program.  If not, see <http:// www.gnu.org/licenses/>.
 package origamieditor3d;
 
-import origamieditor3d.origami.TrackedOrigami;
+import origamieditor3d.origami.OrigamiTracker;
 import origamieditor3d.origami.Camera;
 import origamieditor3d.origami.Origami;
 import java.awt.Color;
@@ -40,6 +40,8 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         liner_triangle[1] = null;
         liner_triangle[2] = null;
         liner_grab_index = 0;
+        alignment_point = null;
+        alignment_radius = 0;
         paper_front_color = 0xFFFFFF;
         neusisOn = false;
         previewOn = false;
@@ -53,8 +55,10 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
     private Integer tracker_x, tracker_y;
     private boolean trackerOn;
     private double[] tracker_im;
-    private double[][] liner_triangle;
+    final private double[][] liner_triangle;
     private int liner_grab_index;
+    private int[] alignment_point;
+    private int alignment_radius;
     private int paper_front_color;
     private boolean neusisOn;
     private boolean previewOn;
@@ -120,7 +124,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         tracker_x = x;
         tracker_y = y;
         try {
-            tracker_im = new TrackedOrigami(
+            tracker_im = new OrigamiTracker(
                     PanelOrigami,
                     new double[]{
                 ((double) tracker_x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
@@ -137,7 +141,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         try {
             int x = xy[0];
             int y = xy[1];
-            liner_triangle[liner_grab_index] = new TrackedOrigami(
+            liner_triangle[liner_grab_index] = new OrigamiTracker(
                     PanelOrigami,
                     new double[]{
                 ((double) x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
@@ -148,6 +152,18 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         }
         liner_grab_index++;
         liner_grab_index %= 3;
+    }
+    
+    public void setAlignmentPoint(int... point) {
+        alignment_point = point;
+    }
+    
+    public void unsetAlignmentPoint() {
+        alignment_point = null;
+    }
+    
+    public void setAlignmentRadius(int radiusSQ2) {
+        alignment_radius = (int)Math.max(Math.sqrt(radiusSQ2/2), 5);
     }
 
     @Override
@@ -160,6 +176,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         liner_triangle[1] = null;
         liner_triangle[2] = null;
         trackerOn = false;
+        alignment_point = null;
     }
 
     public void colorFront(int rgb) {
@@ -200,6 +217,12 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
                     break;
             }
         }
+        if (alignment_point != null) {
+            
+            g.setColor(Color.DARK_GRAY);
+            g.fillOval(alignment_point[0]-alignment_radius, alignment_point[1]-alignment_radius, alignment_radius*2, alignment_radius*2);
+        }
+        
         g.setColor(Color.red);
         if (linerOn) {
 

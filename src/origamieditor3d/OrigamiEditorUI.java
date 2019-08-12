@@ -24,8 +24,8 @@ import origamieditor3d.dictionary.Dictionary;
  */
 public class OrigamiEditorUI extends javax.swing.JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private Integer mouseX, mouseY;
+    private static final long serialVersionUID = 1L;
+    private Integer mouseX, mouseY;
     private int scroll_angle;
     private Integer liner1X, liner1Y, liner2X, liner2Y;
     private OrigamiScriptTerminal terminal;
@@ -64,6 +64,19 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ILLESZTES0, ILLESZTES1, ILLESZTES2, ILLESZTES3, ILLESZTES_SZOG,
         AFFIN_ALTER, SZOGFELEZO
     }
+    
+    private enum TutorialState {
+        
+        Offline,
+        Boat_new,
+        Boat_halveL1, Boat_halveL2, Boat_halve_rightclick,
+        Boat_flap1L1,  Boat_flap1L2,  Boat_flap1_rightclick,
+        Boat_flap2L1,  Boat_flap2L2,  Boat_flap2_rightclick,
+        Boat_bendL1, Boat_bendL2, Boat_bend_scroll, Boat_bend_rightclick,
+        Boat_plane_anchor, Boat_planeP1, Boat_planeP2, Boat_planeP3, Boat_plane_rightclick,
+        Boat_overlap, Boat_sailL1, Boat_sailL2, Boat_sail_rightclick,
+        Boat_finished
+    }
 
     public OrigamiEditorUI() {
         
@@ -97,6 +110,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_view_zoom.setText(Dictionary.getString("zoomonscroll"));
         ui_view_best.setText(Dictionary.getString("bestfit"));
         ui_view_options.setText(Dictionary.getString("options"));
+        ui_view_timeline.setText(Dictionary.getString("timeline"));
         ui_help.setText(Dictionary.getString("help"));
         ui_help_about.setText(Dictionary.getString("about"));
         jTabbedPane1.setTitleAt(0, Dictionary.getString("editor"));
@@ -188,7 +202,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         final javax.swing.JSlider igazitasCsuszka = new javax.swing.JSlider();
         igazitasCsuszka.setMinimum(5);
         igazitasCsuszka.setMaximum(20);
-        igazitasCsuszka.setValue((int) Math.sqrt(alignment_radius) / 2);
+        igazitasCsuszka.setValue((int) Math.sqrt(alignment_radius/2));
         igazitasCsuszka.setLabelTable(igazitasCsuszka.createStandardLabels(15));
         igazitasCsuszka.setPaintLabels(true);
         c = new java.awt.GridBagConstraints();
@@ -267,6 +281,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         tex = null;
         //timeline init
         timeline = new javax.swing.JFrame(Dictionary.getString("timeline"));
+        timeline.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
         timeSlider = new javax.swing.JSlider();
         timeSlider.setMinimum(0);
         timeSlider.setMaximum(0);
@@ -388,7 +403,9 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_view_best = new javax.swing.JCheckBoxMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         ui_view_options = new javax.swing.JMenuItem();
+        ui_view_timeline = new javax.swing.JMenuItem();
         ui_help = new javax.swing.JMenu();
+        ui_help_help = new javax.swing.JMenuItem();
         ui_help_about = new javax.swing.JMenuItem();
 
         jTextArea1.setColumns(20);
@@ -704,9 +721,20 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         });
         ui_view.add(ui_view_options);
 
+        ui_view_timeline.setText("Timeline");
+        ui_view_timeline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_view_timelineActionPerformed(evt);
+            }
+        });
+        ui_view.add(ui_view_timeline);
+
         jMenuBar1.add(ui_view);
 
         ui_help.setText("Help");
+
+        ui_help_help.setText("Help Contents");
+        ui_help.add(ui_help_help);
 
         ui_help_about.setText("About");
         ui_help_about.addActionListener(new java.awt.event.ActionListener() {
@@ -741,6 +769,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                 || EditorState == ControlState.ILLESZTES3
                 || EditorState == ControlState.LOCKED) {
 
+            oPanel1.unsetAlignmentPoint();
             oPanel1.PanelCamera.rotate((mouseX - evt.getX()) / (float) oPanel1.PanelCamera.zoom() / 2, (evt.getY() - mouseY) / (float) oPanel1.PanelCamera.zoom() / 2);
             oPanel1.repaint();
             mouseX = evt.getX();
@@ -1335,12 +1364,27 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     //
     private void oPanel1MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_oPanel1MouseMoved
 
-        if (EditorState == ControlState.VONALZO1) {
+        if (EditorState == ControlState.KESZENLET && alignOn) {
+            
+            liner1X = evt.getX();
+            liner1Y = evt.getY();
+            if (Igazit1(alignment_radius)) {
+                oPanel1.setAlignmentPoint(liner1X, liner1Y);
+                oPanel1.setAlignmentRadius(alignment_radius);
+            } else {
+                oPanel1.unsetAlignmentPoint();
+            }
+        } else if (EditorState == ControlState.VONALZO1) {
 
             liner2X = evt.getX();
             liner2Y = evt.getY();
             if (alignOn) {
-                Igazit2(alignment_radius);
+                if (Igazit2(alignment_radius)) {
+                    oPanel1.setAlignmentPoint(liner2X, liner2Y);
+                    oPanel1.setAlignmentRadius(alignment_radius);
+                } else {
+                    oPanel1.unsetAlignmentPoint();
+                }
             }
             oPanel1.linerOn(liner1X, liner1Y, liner2X, liner2Y);
         }
@@ -1685,6 +1729,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         }
         try {
 
+        	fajlnev = null;
             terminal.execute("paper hexagon new");
 
             oPanel1.update(terminal.TerminalOrigami);
@@ -1726,6 +1771,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         }
         try {
 
+        	fajlnev = null;
             terminal.execute("paper square new");
 
             oPanel1.update(terminal.TerminalOrigami);
@@ -1767,6 +1813,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         }
         try {
 
+        	fajlnev = null;
             terminal.execute("paper a4 new");
 
             oPanel1.update(terminal.TerminalOrigami);
@@ -1796,7 +1843,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ui_file_new_a4ActionPerformed
 
     //
-    //  NEW $ PAPER / ÚJ PAPÍR (EGYDOLLÁROS)
+    //  NEW USD PAPER / ÚJ PAPÍR (EGYDOLLÁROS)
     //
     private void ui_file_new_dollarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_file_new_dollarActionPerformed
 
@@ -1808,6 +1855,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         }
         try {
 
+        	fajlnev = null;
             terminal.execute("paper usd new");
 
             oPanel1.update(terminal.TerminalOrigami);
@@ -2103,6 +2151,10 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         oPanel1.repaint();
     }//GEN-LAST:event_ui_view_paper_noneActionPerformed
 
+    private void ui_view_timelineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_timelineActionPerformed
+        timeline.setVisible(true);
+    }//GEN-LAST:event_ui_view_timelineActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -2133,7 +2185,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         });
     }
 
-    private void Igazit1(int sugar) {
+    private boolean Igazit1(int sugar) {
 
         int v1ujX = -1;
         int v1ujY = -1;
@@ -2153,10 +2205,12 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         if (v1ujX != -1) {
             liner1X = v1ujX;
             liner1Y = v1ujY;
+            return true;
         }
+        return false;
     }
 
-    private void Igazit2(int sugar) {
+    private boolean Igazit2(int sugar) {
 
         int v2ujX = -1;
         int v2ujY = -1;
@@ -2176,7 +2230,9 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         if (v2ujX != -1) {
             liner2X = v2ujX;
             liner2Y = v2ujY;
+            return true;
         }
+        return false;
     }
 
     private int[] LaposIgazitas(int x, int y, int sugar) {
@@ -2241,6 +2297,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem ui_file_saveas;
     private javax.swing.JMenu ui_help;
     private javax.swing.JMenuItem ui_help_about;
+    private javax.swing.JMenuItem ui_help_help;
     private javax.swing.JMenu ui_view;
     private javax.swing.JCheckBoxMenuItem ui_view_best;
     private javax.swing.JMenuItem ui_view_options;
@@ -2249,6 +2306,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem ui_view_paper_none;
     private javax.swing.JCheckBoxMenuItem ui_view_paper_plain;
     private javax.swing.JCheckBoxMenuItem ui_view_show;
+    private javax.swing.JMenuItem ui_view_timeline;
     private javax.swing.JCheckBoxMenuItem ui_view_zoom;
     // End of variables declaration//GEN-END:variables
 }
