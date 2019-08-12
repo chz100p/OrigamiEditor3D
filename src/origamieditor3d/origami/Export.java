@@ -1,5 +1,5 @@
 // This file is part of Origami Editor 3D.
-// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <bagyoni.attila@gmail.com>
+// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <ba-sz-at@users.sourceforge.net>
 // Origami Editor 3D is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -22,10 +22,8 @@ import java.util.ArrayList;
  * Metódusokat nyújt az {@linkplain Origami} objektumok PDF és OpenCTM
  * formátumba exportálásához.
  *
- * @author Attila Bágyoni <bagyoni.attila@gmail.com>
+ * @author Attila Bágyoni (ba-sz-at@users.sourceforge.net)
  * @since 2013-01-14
- * @see Origami
- * @see Kamera
  */
 public class Export {
 
@@ -40,14 +38,6 @@ public class Export {
         return exports;
     }
 
-    /**
-     * OpenCTM 3D fájlba exportálja a paraméterként megadott
-     * {@linkplain Origami}t.
-     *
-     * @param origami	Az exportáladnó {@linkplain Origami}.
-     * @param filename	A fájl elérési útja.
-     * @return	1, ha az eljárás sikeresen lefutott, <p> 0, ha nem.
-     */
     static public int exportCTM(Origami origami, String filename) {
 
         try {
@@ -265,14 +255,6 @@ public class Export {
         }
     }
 
-    /**
-     * PDF 1.3 formátumba exportálja a paraméterként megadott
-     * {@linkplain Origami}t.
-     *
-     * @param origami	Az exportáladnó {@linkplain Origami}.
-     * @param filename	A fájl elérési útja a készülék Letöltések mappájában.
-     * @return	1, ha az eljárás sikeresen lefutott, <p> 0, ha nem.
-     */
     static public int exportPDF(Origami origami, String filename, String title) {
 
         try {
@@ -1212,6 +1194,274 @@ public class Export {
 
         } catch (Exception exc) {
 
+            return 0;
+        }
+    }
+    
+    static public int exportGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) {
+        
+        try (FileOutputStream fos = new FileOutputStream(filename)) {
+            
+            fos.write('G');
+            fos.write('I');
+            fos.write('F');
+            fos.write('8');
+            fos.write('9');
+            fos.write('a');
+            
+            fos.write((byte)width);
+            fos.write((byte)(width >>> 8));
+            fos.write((byte)height);
+            fos.write((byte)(height >>> 8));
+            fos.write(0b10010110);
+            fos.write(0);
+            fos.write(0);
+            
+            for (int r=1; r<=5; r++) {
+                for (int g=1; g<=5; g++) {
+                    for (int b=1; b<=5; b++) {
+                        
+                        fos.write(r*51);
+                        fos.write(g*51);
+                        fos.write(b*51);
+                    }
+                }
+            }
+            for (int i=0; i<9; i++) {
+                fos.write(0);
+            }
+            
+            fos.write(0x21);
+            fos.write(0xFF);
+            fos.write(0x0B);
+            fos.write('N');
+            fos.write('E');
+            fos.write('T');
+            fos.write('S');
+            fos.write('C');
+            fos.write('A');
+            fos.write('P');
+            fos.write('E');
+            fos.write('2');
+            fos.write('.');
+            fos.write('0');
+            fos.write(0x03);
+            fos.write(0x01);
+            fos.write(0x00);
+            fos.write(0x00);
+            fos.write(0x00);
+            
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.awt.Graphics2D gimg = img.createGraphics();
+            gimg.setBackground(java.awt.Color.WHITE);
+            Origami origami1 = origami.clone();
+            Camera cam = new Camera(width/2, height/2, 1);
+            cam.camera_dir = refcam.camera_dir.clone();
+            cam.axis_x = refcam.axis_x.clone();
+            cam.axis_y = refcam.axis_y.clone();
+            cam.setZoom(0.8 * Math.min(width, height) / origami1.circumscribedSquareSize());
+            int steps = origami1.history_pointer();
+            origami1.undo(steps);
+            boolean last = false;
+            while (origami1.history_pointer() < steps || (last = !last && origami1.history_pointer() == steps)) {
+                    
+                    gimg.clearRect(0, 0, width, height);
+                    cam.adjust(origami1);
+                    cam.drawFaces(gimg, color, origami1);
+                    cam.drawEdges(gimg, java.awt.Color.black, origami1);
+                    origami1.redo();
+                    fos.write(0x21);
+                    fos.write(0xF9);
+                    fos.write(0x04);
+                    fos.write(0x04);
+                    fos.write(0x64); //delay time
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    
+                    fos.write(0x2C);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write((byte)width);
+                    fos.write((byte)(width >>> 8));
+                    fos.write((byte)height);
+                    fos.write((byte)(height >>> 8));
+                    fos.write(0x00);
+                    
+                    fos.write(0x07);
+                    
+                    byte[] bimg = new byte[width*height];
+                    for(int y=0; y<height; y++) {
+                        
+                        fos.write(width/2+1);
+                        fos.write(0x80);
+                        for (int x=0; x<width/2; x++) {
+                            
+                            int rgb = img.getRGB(x, y) & 0xFFFFFF;
+                            int b = rgb % 0x100;
+                            int g = (rgb >>> 8) % 0x100;
+                            int r = rgb >>> 16;
+                            
+                            fos.write((((r*5)/256)*25+((g*5)/256)*5+(b*5)/256));
+                        }
+                        fos.write(width-width/2+1);
+                        fos.write(0x80);
+                        for (int x=width/2; x<width; x++) {
+                            
+                            int rgb = img.getRGB(x, y) & 0xFFFFFF;
+                            int b = rgb % 0x100;
+                            int g = (rgb >>> 8) % 0x100;
+                            int r = rgb >>> 16;
+                            
+                            fos.write((((r*5)/256)*25+((g*5)/256)*5+(b*5)/256));
+                        }
+                    }
+                    fos.write(0x01);
+                    fos.write(0x81);
+                    fos.write(0);
+            }
+            
+            fos.write(0x3B);
+            fos.close();
+            return 1;
+        } catch (Exception ex) {
+            
+            return 0;
+        }
+    }
+    
+    
+    static public int exportRevolvingGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) {
+        
+        try (FileOutputStream fos = new FileOutputStream(filename)) {
+            
+            fos.write('G');
+            fos.write('I');
+            fos.write('F');
+            fos.write('8');
+            fos.write('9');
+            fos.write('a');
+            
+            fos.write((byte)width);
+            fos.write((byte)(width >>> 8));
+            fos.write((byte)height);
+            fos.write((byte)(height >>> 8));
+            fos.write(0b10010110);
+            fos.write(0);
+            fos.write(0);
+            
+            for (int r=1; r<=5; r++) {
+                for (int g=1; g<=5; g++) {
+                    for (int b=1; b<=5; b++) {
+                        
+                        fos.write(r*51);
+                        fos.write(g*51);
+                        fos.write(b*51);
+                    }
+                }
+            }
+            for (int i=0; i<9; i++) {
+                fos.write(0);
+            }
+            
+            fos.write(0x21);
+            fos.write(0xFF);
+            fos.write(0x0B);
+            fos.write('N');
+            fos.write('E');
+            fos.write('T');
+            fos.write('S');
+            fos.write('C');
+            fos.write('A');
+            fos.write('P');
+            fos.write('E');
+            fos.write('2');
+            fos.write('.');
+            fos.write('0');
+            fos.write(0x03);
+            fos.write(0x01);
+            fos.write(0x00);
+            fos.write(0x00);
+            fos.write(0x00);
+            
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.awt.Graphics2D gimg = img.createGraphics();
+            gimg.setBackground(java.awt.Color.WHITE);
+            Origami origami1 = origami.clone();
+            Camera cam = new Camera(width/2, height/2, 1);
+            cam.camera_dir = refcam.camera_dir.clone();
+            cam.axis_x = refcam.axis_x.clone();
+            cam.axis_y = refcam.axis_y.clone();
+            cam.setZoom(0.8 * Math.min(width, height) / origami1.circumscribedSquareSize());
+            cam.adjust(origami1);
+            
+            for (int i=0; i<72; i++) {
+                    
+                    gimg.clearRect(0, 0, width, height);
+                    cam.drawFaces(gimg, color, origami1);
+                    cam.drawEdges(gimg, java.awt.Color.black, origami1);
+                    cam.rotate(10, 0);
+                    
+                    fos.write(0x21);
+                    fos.write(0xF9);
+                    fos.write(0x04);
+                    fos.write(0x04);
+                    fos.write(0x05); //delay time
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    
+                    fos.write(0x2C);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write(0x00);
+                    fos.write((byte)width);
+                    fos.write((byte)(width >>> 8));
+                    fos.write((byte)height);
+                    fos.write((byte)(height >>> 8));
+                    fos.write(0x00);
+                    
+                    fos.write(0x07);
+                    
+                    byte[] bimg = new byte[width*height];
+                    for(int y=0; y<height; y++) {
+                        
+                        fos.write(width/2+1);
+                        fos.write(0x80);
+                        for (int x=0; x<width/2; x++) {
+                            
+                            int rgb = img.getRGB(x, y) & 0xFFFFFF;
+                            int b = rgb % 0x100;
+                            int g = (rgb >>> 8) % 0x100;
+                            int r = rgb >>> 16;
+                            
+                            fos.write((((r*5)/256)*25+((g*5)/256)*5+(b*5)/256));
+                        }
+                        fos.write(width-width/2+1);
+                        fos.write(0x80);
+                        for (int x=width/2; x<width; x++) {
+                            
+                            int rgb = img.getRGB(x, y) & 0xFFFFFF;
+                            int b = rgb % 0x100;
+                            int g = (rgb >>> 8) % 0x100;
+                            int r = rgb >>> 16;
+                            
+                            fos.write((((r*5)/256)*25+((g*5)/256)*5+(b*5)/256));
+                        }
+                    }
+                    fos.write(0x01);
+                    fos.write(0x81);
+                    fos.write(0);
+            }
+            
+            fos.write(0x3B);
+            fos.close();
+            return 1;
+        } catch (Exception ex) {
+            
             return 0;
         }
     }

@@ -1,5 +1,5 @@
 // This file is part of Origami Editor 3D.
-// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <bagyoni.attila@gmail.com>
+// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <ba-sz-at@users.sourceforge.net>
 // Origami Editor 3D is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -18,10 +18,8 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 
 /**
- * Metódusokat nyújt az {@linkplain Origami} {@linkplain Canvas} objektumra,
- * illetve PDF-adatfolyamba rajzolásához.
- *
- * @author Attila Bágyoni <bagyoni.attila@gmail.com>
+ * 
+ * @author Attila Bágyoni (ba-sz-at@users.sourceforge.net)
  * @since 2013-01-14
  * @see Origami
  */
@@ -243,8 +241,8 @@ public class Camera {
         java.util.List<int[]> vissza = new ArrayList<>();
         for (int i = 0; i < origami.vertices_size(); i++) {
 
-            vissza.add(new int[]{(int) projection(origami.vertices_2d().get(i))[0],
-                (int) projection(origami.vertices_2d().get(i))[1]});
+            vissza.add(new int[]{(int) projection(origami.vertices2d().get(i))[0],
+                (int) projection(origami.vertices2d().get(i))[1]});
         }
 
         for (int i = 0; i < origami.polygons_size(); i++) {
@@ -253,15 +251,15 @@ public class Camera {
 
                 for (int ii = 0; ii < origami.polygons().get(i).size() - 1; ii++) {
 
-                    double[] pont1 = origami.vertices_2d().get(origami.polygons().get(i).get(ii));
-                    double[] pont2 = origami.vertices_2d().get(origami.polygons().get(i).get(ii + 1));
+                    double[] pont1 = origami.vertices2d().get(origami.polygons().get(i).get(ii));
+                    double[] pont2 = origami.vertices2d().get(origami.polygons().get(i).get(ii + 1));
                     double[] felezo = Origami.midpoint(pont1, pont2);
 
                     vissza.add(new int[]{(int) projection(felezo)[0], (int) projection(felezo)[1]});
                 }
 
-                double[] Upont1 = origami.vertices_2d().get(origami.polygons().get(i).get(origami.polygons().get(i).size() - 1));
-                double[] Upont2 = origami.vertices_2d().get(origami.polygons().get(i).get(0));
+                double[] Upont1 = origami.vertices2d().get(origami.polygons().get(i).get(origami.polygons().get(i).size() - 1));
+                double[] Upont2 = origami.vertices2d().get(origami.polygons().get(i).get(0));
                 double[] Ufelezo = Origami.midpoint(Upont1, Upont2);
 
                 vissza.add(new int[]{(int) projection(Ufelezo)[0], (int) projection(Ufelezo)[1]});
@@ -632,8 +630,8 @@ public class Camera {
 
                 for (int ii = 0; ii < origami.polygons().get(i).size(); ii++) {
 
-                    ut.addPoint((short) (projection(origami.vertices_2d().get(origami.polygons().get(i).get(ii)))[0]) + xshift,
-                            (short) (projection(origami.vertices_2d().get(origami.polygons().get(i).get(ii)))[1]) + yshift);
+                    ut.addPoint((short) (projection(origami.vertices2d().get(origami.polygons().get(i).get(ii)))[0]) + xshift,
+                            (short) (projection(origami.vertices2d().get(origami.polygons().get(i).get(ii)))[1]) + yshift);
                 }
                 canvas.drawPolygon(ut);
             }
@@ -994,8 +992,8 @@ public class Camera {
                 Polygon ut = new Polygon();
                 for (int ii = 0; ii < origami.polygons().get(i).size(); ii++) {
 
-                    ut.addPoint((short) (new Camera(0, 0, 1d).projection(origami.vertices_2d().get(origami.polygons().get(i).get(ii)))[0]) + 200,
-                            (short) (new Camera(0, 0, 1d).projection(origami.vertices_2d().get(origami.polygons().get(i).get(ii)))[1]) + 200);
+                    ut.addPoint((short) (new Camera(0, 0, 1d).projection(origami.vertices2d().get(origami.polygons().get(i).get(ii)))[0]) + 200,
+                            (short) (new Camera(0, 0, 1d).projection(origami.vertices2d().get(origami.polygons().get(i).get(ii)))[1]) + 200);
                 }
                 canvas.setColor(new Color(i));
                 canvas.fillPolygon(ut);
@@ -1014,12 +1012,12 @@ public class Camera {
             if (szin != 0xFFFFFF) {
 
                 try {
-                    double x_1 = origami.vertices_2d().get(vaz[szin][1])[0] - origami.vertices_2d().get(vaz[szin][0])[0];
-                    double x_2 = origami.vertices_2d().get(vaz[szin][1])[1] - origami.vertices_2d().get(vaz[szin][0])[1];
-                    double y_1 = origami.vertices_2d().get(vaz[szin][2])[0] - origami.vertices_2d().get(vaz[szin][0])[0];
-                    double y_2 = origami.vertices_2d().get(vaz[szin][2])[1] - origami.vertices_2d().get(vaz[szin][0])[1];
-                    double a_1 = (double) (i % sor) - origami.vertices_2d().get(vaz[szin][0])[0];
-                    double a_2 = (double) i / sor - origami.vertices_2d().get(vaz[szin][0])[1];
+                    double x_1 = origami.vertices2d().get(vaz[szin][1])[0] - origami.vertices2d().get(vaz[szin][0])[0];
+                    double x_2 = origami.vertices2d().get(vaz[szin][1])[1] - origami.vertices2d().get(vaz[szin][0])[1];
+                    double y_1 = origami.vertices2d().get(vaz[szin][2])[0] - origami.vertices2d().get(vaz[szin][0])[0];
+                    double y_2 = origami.vertices2d().get(vaz[szin][2])[1] - origami.vertices2d().get(vaz[szin][0])[1];
+                    double a_1 = (double) (i % sor) - origami.vertices2d().get(vaz[szin][0])[0];
+                    double a_2 = (double) i / sor - origami.vertices2d().get(vaz[szin][0])[1];
 
                     double lambda1 = (a_1 * y_2 - a_2 * y_1) / (x_1 * y_2 - x_2 * y_1);
                     double lambda2 = (a_1 * x_2 - a_2 * x_1) / (y_1 * x_2 - y_2 * x_1);
