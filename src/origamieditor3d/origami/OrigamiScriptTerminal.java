@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
 import origamieditor3d.resources.Dictionary;
 import origamieditor3d.resources.Instructor;
 
@@ -44,7 +45,7 @@ public class OrigamiScriptTerminal {
         tracker = null;
         phi = null;
         title = null;
-        
+
         prompt = false;
     }
 
@@ -204,7 +205,7 @@ public class OrigamiScriptTerminal {
                 version(args);
             }
         });
-        
+
         Params.put("locale", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -225,14 +226,14 @@ public class OrigamiScriptTerminal {
                 title(args);
             }
         });
-        
+
         Params.put("camera", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 camera(args);
             }
         });
-        
+
         Params.put("color", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -311,14 +312,14 @@ public class OrigamiScriptTerminal {
                 OPEN();
             }
         });
-        
+
         Commands.put("load-texture", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 LOAD_TEXTURE();
             }
         });
-        
+
         Commands.put("unload-texture", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -339,28 +340,28 @@ public class OrigamiScriptTerminal {
                 EXPORT_AUTOPDF();
             }
         });
-        
+
         Commands.put("export-gif", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 EXPORT_GIF();
             }
         });
-        
+
         Commands.put("export-jar", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 EXPORT_JAR();
             }
         });
-        
+
         Commands.put("export-png", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 EXPORT_PNG();
             }
         });
-        
+
         Commands.put("export-revolving-gif", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -578,12 +579,12 @@ public class OrigamiScriptTerminal {
                 throw OrigamiException.H007;
             }
 
-            if (Origami.vector_length(Origami.vector_product(
-                    Origami.vector(pt2, pt1), Origami.vector(pt3, pt1))) != 0d) {
+            if (Geometry.vector_length(Geometry.vector_product(
+                    Geometry.vector(pt2, pt1), Geometry.vector(pt3, pt1))) != 0d) {
 
                 ppoint = pt1;
-                pnormal = Origami.vector_product(Origami.vector(pt2, pt1),
-                        Origami.vector(pt3, pt1));
+                pnormal = Geometry.vector_product(Geometry.vector(pt2, pt1),
+                        Geometry.vector(pt3, pt1));
             } else {
                 throw OrigamiException.H008;
             }
@@ -644,11 +645,11 @@ public class OrigamiScriptTerminal {
                 throw OrigamiException.H007;
             }
             ppoint = pt2;
-            pnormal = Origami.vector(
-                    Origami.length_to_100(Origami.vector(pt1, pt2)),
-                    Origami.length_to_100(Origami.vector(pt3, pt2)));
+            pnormal = Geometry.vector(
+                    Geometry.length_to_100(Geometry.vector(pt1, pt2)),
+                    Geometry.length_to_100(Geometry.vector(pt3, pt2)));
 
-            if (Origami.vector_length(pnormal) == 0.) {
+            if (Geometry.vector_length(pnormal) == 0.) {
                 throw OrigamiException.H012;
             }
 
@@ -899,7 +900,7 @@ public class OrigamiScriptTerminal {
 
         if (ppoint != null && pnormal != null && phi != null && tracker == null) {
             TerminalOrigami.rotationFold(ppoint, pnormal, phi);
-            
+
         } else if (ppoint != null && pnormal != null && phi != null
                 && tracker != null) {
 
@@ -990,7 +991,7 @@ public class OrigamiScriptTerminal {
             }
         }
     }
-    
+
     private void locale(String... args) throws Exception {
 
         if (args.length == 1) {
@@ -1027,7 +1028,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void camera(String... args) throws Exception {
 
         switch (version) {
@@ -1038,7 +1039,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void color(String... args) throws Exception {
 
         switch (version) {
@@ -1069,7 +1070,7 @@ public class OrigamiScriptTerminal {
             throw OrigamiException.H007;
         }
     }
-    
+
     private void camera1(String... args) throws Exception {
 
         if (args.length == 3) {
@@ -1077,7 +1078,7 @@ public class OrigamiScriptTerminal {
             String[] Dir = args[0].split(" ");
             String[] Xaxis = args[1].split(" ");
             String[] Yaxis = args[2].split(" ");
-            
+
             double[] dir, xaxis, yaxis;
             if (Dir.length == 3) {
                 dir = new double[]{Double.parseDouble(Dir[0]),
@@ -1097,26 +1098,26 @@ public class OrigamiScriptTerminal {
             } else {
                 throw OrigamiException.H007;
             }
-            
+
             TerminalCamera.camera_dir = dir;
             TerminalCamera.axis_x = xaxis;
             TerminalCamera.axis_y = yaxis;
-            
+
         } else {
             throw OrigamiException.H007;
         }
     }
-    
+
     private void color1(String... args) throws Exception {
-        
+
         if (args.length == 1) {
-            
+
             String[] Col = args[0].split(" ");
-            
+
             if (Col.length == 1) {
                 paper_color = Integer.parseInt(Col[0]) & 0xFFFFFF;
             } else if (Col.length == 3) {
-                
+
                 paper_color = ((Integer.parseInt(Col[0]) & 0xFF) << 16)
                         + ((Integer.parseInt(Col[1]) & 0xFF) << 8)
                         + (Integer.parseInt(Col[2]) & 0xFF);
@@ -1175,7 +1176,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void LOAD_TEXTURE() throws Exception {
 
         switch (version) {
@@ -1186,7 +1187,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void UNLOAD_TEXTURE() throws Exception {
 
         switch (version) {
@@ -1219,9 +1220,9 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void EXPORT_GIF() throws Exception {
-        
+
         switch (version) {
 
             default:
@@ -1230,9 +1231,9 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void EXPORT_REVOLVING_GIF() throws Exception {
-        
+
         switch (version) {
 
             default:
@@ -1241,9 +1242,9 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void EXPORT_JAR() throws Exception {
-        
+
         switch (version) {
 
             default:
@@ -1252,9 +1253,9 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void EXPORT_PNG() throws Exception {
-        
+
         switch (version) {
 
             default:
@@ -1406,6 +1407,7 @@ public class OrigamiScriptTerminal {
                 while ((nxb = fis.read()) != -1) {
                     bytesb.add((byte) nxb);
                 }
+                fis.close();
                 byte[] bytes = new byte[bytesb.size()];
                 for (int i = 0; i < bytesb.size(); i++) {
                     bytes[i] = bytesb.get(i);
@@ -1418,7 +1420,7 @@ public class OrigamiScriptTerminal {
             throw OrigamiException.H011;
         }
     }
-    
+
     private void LOAD_TEXTURE1() throws Exception {
 
         if (filename != null) {
@@ -1431,7 +1433,7 @@ public class OrigamiScriptTerminal {
             throw OrigamiException.H010;
         }
     }
-    
+
     private void UNLOAD_TEXTURE1() throws Exception {
         paper_texture = null;
     }
@@ -1465,9 +1467,9 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void EXPORT_GIF1() throws Exception {
-        
+
         if (filename != null) {
 
             if (new java.io.File(filename).exists() && access != Access.ROOT && access != Access.DEV) {
@@ -1480,9 +1482,9 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void EXPORT_REVOLVING_GIF1() throws Exception {
-        
+
         if (filename != null) {
 
             if (new java.io.File(filename).exists() && access != Access.ROOT && access != Access.DEV) {
@@ -1510,7 +1512,7 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void EXPORT_PNG1() throws Exception {
 
         if (filename != null) {
@@ -1525,7 +1527,7 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void EXPORT_ORI1() throws Exception {
 
         if (filename != null) {
@@ -1618,7 +1620,7 @@ public class OrigamiScriptTerminal {
     }
 
     private boolean prompt;
-    
+
     @SuppressWarnings("deprecation")
     public void execute(String code) throws Exception {
 
