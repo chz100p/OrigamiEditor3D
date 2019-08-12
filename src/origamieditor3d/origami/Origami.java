@@ -677,6 +677,15 @@ public class Origami {
         return false;
     }
 
+    /**
+     * Checks if the polygon at the specified index in the {@link #polygons()
+     * polygons} list has a positive area.
+     *
+     * @param polygonIndex
+     *            The zero-base index at which the polygon to check is located
+     *            in the {@link #polygons() polygons} list.
+     * @return {@code false} iff the specified polygon is zero- or one-dimensional.
+     */
     public boolean isStrictlyNonDegenerate(int polygonIndex) {
 
         if (polygons.get(polygonIndex).size() > 2) {
@@ -742,7 +751,7 @@ public class Origami {
      *            half-space.
      * @param pnormal
      *            An array containing the coordinates of the normal vector of
-     *            the plane bounding the half-space.
+     *            the half-space.
      * @param polygonIndex
      *            The zero-base index at which the polygon to split is located
      *            in the {@link #polygons() polygons} list.
@@ -1532,11 +1541,8 @@ public class Origami {
     }
 
     /**
-     * Végrehajtja a this origami {@link #history}-jában szereplô összes
-     * mûveletet index szerint növekvô sorrendben.
-     * <p>
-     * Mivel a mûveleteket this origami aktuális állapotán végzi el, általában
-     * egy {@linkplain #reset()} hívás elôzi meg.
+     * Executes every {@link Origami#FoldingOperator FoldingOperator} stored in
+     * this origami's {@link #history()}. Does not call {@linkplain #reset()}.
      */
     public void execute() {
 
@@ -1628,8 +1634,8 @@ public class Origami {
     /**
      * Restores the state of this origami to the one before the last
      * {@link FoldingOperation folding operation} was executed. For this method
-     * to work, the origami should not be modified by any methods other than the
-     * constructors and the folding operations.
+     * to work, the user should never use any method with a protected signature
+     * in this class.
      *
      * @since 2013-09-05
      */
@@ -1847,7 +1853,7 @@ public class Origami {
 
     /**
      * Returns the difference of the largest and the smallest first coordinate
-     * occuring within the {@link #corners() corners} list.
+     * occurring within the {@link #corners() corners} list.
      *
      * @return As described above.
      */
@@ -2125,6 +2131,7 @@ public class Origami {
                     collin = true;
                     if (Geometry
                             .vector_length(Geometry.vector(vertices.get(hp), vertices.get(lines.get(0)))) > dist_max) {
+                        
                         farpoint = hp;
                         dist_max = Geometry
                                 .vector_length(Geometry.vector(vertices.get(hp), vertices.get(lines.get(0))));

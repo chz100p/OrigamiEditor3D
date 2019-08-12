@@ -10,34 +10,26 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:// www.gnu.org/licenses/>.
-package origamieditor3d;
+package origamieditor3d.resources;
 
 /**
  *
  * @author Attila Bágyoni (ba-sz-at@users.sourceforge.net)
  */
-public class OrigamiApplet extends java.applet.Applet {
+public class BaseModels {
 
-    final static private long serialVersionUID = 1L;
+    public java.io.InputStream getFile(String name) {
+        return getClass().getResourceAsStream("/res/models/"+name);
+    }
 
-    @Override
-    public void init() {
+    public java.util.ArrayList<String> names() {
 
-        final java.awt.Button launch = new java.awt.Button("Launch Origami Editor 3D now!");
-        launch.setPreferredSize(new java.awt.Dimension(getWidth(), getHeight()));
-        launch.addActionListener(new java.awt.event.ActionListener() {
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-                try {
-                    new OrigamiEditorUI().setVisible(true);
-                }
-                catch (Exception ex) {
-                    javax.swing.JOptionPane.showMessageDialog(null, ex.getMessage());
-                }
-            }
-        });
-        add(launch);
+        java.util.ArrayList<String> namelist = new java.util.ArrayList<>();
+        java.util.Scanner sc = new java.util.Scanner(getClass().getResourceAsStream("/res/models/bases.list"));
+        while(sc.hasNextLine()) {
+            namelist.add(sc.nextLine());
+        }
+        sc.close();
+        return namelist;
     }
 }
