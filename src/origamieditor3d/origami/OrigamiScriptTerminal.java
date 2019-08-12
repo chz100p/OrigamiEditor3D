@@ -98,7 +98,7 @@ public class OrigamiScriptTerminal {
         this.TerminalCamera = new Camera(0, 0, 1);
     }
 
-    private void historyReset() {
+    public void historyReset() {
         this.history.clear();
     }
 
@@ -1135,7 +1135,17 @@ public class OrigamiScriptTerminal {
             history.add("version 1 filename [" + filename + "] open");
             if (filename != null) {
 
-                this.TerminalOrigami = OrigamiIO.read_gen2(filename);
+                java.util.ArrayList<Byte> bytesb = new java.util.ArrayList<>();
+                java.io.FileInputStream fis = new java.io.FileInputStream(new java.io.File(filename));
+                int nxb;
+                while ((nxb = fis.read()) != -1) {
+                    bytesb.add((byte)nxb);
+                }
+                byte[] bytes = new byte[bytesb.size()];
+                for (int i=0; i<bytesb.size(); i++) {
+                    bytes[i] = bytesb.get(i);
+                }
+                this.TerminalOrigami = OrigamiIO.read_gen2(new java.io.ByteArrayInputStream(bytes));
             } else {
                 throw OrigamiException.H010;
             }

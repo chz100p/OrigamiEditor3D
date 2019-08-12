@@ -13,7 +13,6 @@
 package origamieditor3d.origami;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -490,16 +489,13 @@ public class OrigamiIO {
         }
     }
 
-    static public Origami read_gen2(String filename) throws Exception {
+    static public Origami read_gen2(java.io.ByteArrayInputStream ori) throws Exception {
 
         try {
 
             OrigamiGen2 origami;
-
-            File ori = new File(filename);
-            origamieditor3d.compression.LZW.extract(ori, new File(filename+"~"));
-            File ori1 = new File(filename+"~");
-            FileInputStream str = new FileInputStream(ori1);
+            ori.reset();
+            java.io.InputStream str = origamieditor3d.compression.LZW.extract(ori);
 
             int fejlec1 = str.read();
             fejlec1 *= 256;
@@ -522,7 +518,7 @@ public class OrigamiIO {
                 if (fejlec2 != 0x0363) {
 
                     str.close();
-                    return read_gen1(filename);
+                    return read_gen1(ori);
                 } else {
 
                     int papir = str.read();
@@ -689,7 +685,6 @@ public class OrigamiIO {
                     }
                     origami.redoAll();
                     str.close();
-                    ori1.delete();
                     return origami;
                 }
             }
@@ -699,17 +694,14 @@ public class OrigamiIO {
         }
     }
     
-    static public Origami read_gen1(String filename) throws Exception {
+    static public Origami read_gen1(java.io.ByteArrayInputStream ori) throws Exception {
 
         try {
 
             Origami origami;
-
-            File ori = new File(filename);
-            origamieditor3d.compression.LZW.extract(ori, new File(filename+"~"));
-            File ori1 = new File(filename+"~");
-            FileInputStream str = new FileInputStream(ori1);
-
+            ori.reset();
+            java.io.InputStream str = origamieditor3d.compression.LZW.extract(ori);
+            
             int fejlec1 = str.read();
             fejlec1 *= 256;
             fejlec1 += str.read();
@@ -898,7 +890,6 @@ public class OrigamiIO {
                     }
                     origami.redoAll();
                     str.close();
-                    ori1.delete();
                     return origami;
                 }
             }

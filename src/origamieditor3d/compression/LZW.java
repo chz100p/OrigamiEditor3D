@@ -70,10 +70,10 @@ public class LZW {
         fos.close();
     }
 
-    static public void extract(java.io.File input, java.io.File output) throws Exception {
+    static public java.io.ByteArrayInputStream extract(java.io.ByteArrayInputStream input) throws Exception {
 
-        java.io.FileInputStream fis = new java.io.FileInputStream(input);
-        java.io.FileOutputStream fos = new java.io.FileOutputStream(output);
+        java.io.InputStream fis = input;
+        java.util.ArrayList<Byte> fosb = new java.util.ArrayList<>();
         java.util.HashMap<Integer, String> szotar = new java.util.HashMap<>();
         java.util.ArrayList<Integer> normalatlan = new java.util.ArrayList<>();
         for (int i = 0; i < 256; i++) {
@@ -87,8 +87,7 @@ public class LZW {
             magn2 = rb;
             fajlveg++;
         }
-        fis.close();
-        fis = new java.io.FileInputStream(input);
+        fis.reset();
         for (int i = 0; i < fajlveg - 1; i += magn2) {
             String normalt = "";
             for (int ii = i; ii < i + magn2; ii++) {
@@ -101,7 +100,7 @@ public class LZW {
             }
         }
         String szo = (char) (int) normalatlan.remove(0) + "";
-        fos.write(szo.charAt(0));
+        fosb.add((byte)szo.charAt(0));
         for (int b : normalatlan) {
 
             String szo1;
@@ -113,13 +112,17 @@ public class LZW {
                 break;
             }
             for (int i = 0; i < szo1.length(); i++) {
-                fos.write(szo1.charAt(i));
+                fosb.add((byte)szo1.charAt(i));
             }
             szotar.put(szotar.size(), szo + szo1.charAt(0));
             szo = szo1;
         }
         fis.close();
-        fos.close();
+        byte[] fos = new byte[fosb.size()];
+        for (int i=0; i<fosb.size(); i++) {
+            fos[i] = fosb.get(i);
+        }
+        return new java.io.ByteArrayInputStream(fos);
     }
 
     static public String BinToString(int bin, int digits) {

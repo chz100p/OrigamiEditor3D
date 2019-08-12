@@ -36,4 +36,5 @@ public class OrigamiException extends Exception {
     final static public OrigamiException H010 = new OrigamiException(Dictionary.getString("h010"));
     final static public OrigamiException H011 = new OrigamiException(Dictionary.getString("h011"));
     final static public OrigamiException H012 = new OrigamiException(Dictionary.getString("h012"));
+    final static public OrigamiException H013 = new OrigamiException(Dictionary.getString("h013"));
 }

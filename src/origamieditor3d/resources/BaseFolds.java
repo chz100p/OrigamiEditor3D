@@ -14,7 +14,7 @@ package origamieditor3d.resources;
 
 /**
  *
- * @author bsza
+ * @author Attila Bágyoni <bagyoni.attila@gmail.com>
  */
 public class BaseFolds {
     

@@ -13,7 +13,6 @@
 package origamieditor3d.origami;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class OrigamiGen2 extends Origami {
 
