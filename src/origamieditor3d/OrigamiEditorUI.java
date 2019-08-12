@@ -1,5 +1,5 @@
 // This file is part of Origami Editor 3D.
-// Copyright (C) 2013 Bágyoni Attila <bagyoni.attila@gmail.com>
+// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <bagyoni.attila@gmail.com>
 // Origami Editor 3D is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -29,7 +29,7 @@ import origamieditor3d.resources.Models;
 public class OrigamiEditorUI extends javax.swing.JFrame {
 
     final static private long serialVersionUID = 1L;
-    final static private String Version = "1.1.3";
+    final static private String Version = "1.1.4";
     private Integer mouseX, mouseY;
     private int scroll_angle;
     private Integer liner1X, liner1Y, liner2X, liner2Y;
@@ -113,6 +113,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                             return;
                         }
                     }
+                    fajlnev = null;
                     try (java.io.InputStream fis = bases.getFile(basenames.get(ind))) {
 
                         java.util.ArrayList<Byte> bytesb = new java.util.ArrayList<>();
@@ -146,7 +147,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                         if (alwaysInMiddle) {
                             oPanel1.PanelCamera.adjust(terminal.TerminalOrigami);
                         }
-                        oPanel1.PanelCamera.setOrthogonalView();
+                        oPanel1.PanelCamera.setOrthogonalView(0);
                         EditorState = ControlState.KESZENLET;
                         scroll_angle = 0;
                         oPanel1.repaint();
@@ -181,6 +182,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                             return;
                         }
                     }
+                    fajlnev = null;
                     try (java.io.InputStream fis = models.getFile(modnames.get(ind))) {
 
                         java.util.ArrayList<Byte> bytesb = new java.util.ArrayList<>();
@@ -214,7 +216,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                         if (alwaysInMiddle) {
                             oPanel1.PanelCamera.adjust(terminal.TerminalOrigami);
                         }
-                        oPanel1.PanelCamera.setOrthogonalView();
+                        oPanel1.PanelCamera.setOrthogonalView(0);
                         EditorState = ControlState.KESZENLET;
                         scroll_angle = 0;
                         oPanel1.repaint();
@@ -1303,7 +1305,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                 if (terminal.TerminalOrigami.circumscribedSquareSize() > 0) {
                     oPanel1.PanelCamera.setZoom(0.8 * Math.min(oPanel1.getWidth(), oPanel1.getHeight()) / terminal.TerminalOrigami.circumscribedSquareSize());
                 }
-                oPanel1.PanelCamera.setOrthogonalView();
+                oPanel1.PanelCamera.nextOrthogonalView();
                 oPanel1.repaint();
             } else if (EditorState == ControlState.SZOG) {
 
@@ -2142,7 +2144,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                     if (alwaysInMiddle) {
                         oPanel1.PanelCamera.adjust(terminal.TerminalOrigami);
                     }
-                    oPanel1.PanelCamera.setOrthogonalView();
+                    oPanel1.PanelCamera.setOrthogonalView(0);
                     EditorState = ControlState.KESZENLET;
                     scroll_angle = 0;
                     oPanel1.repaint();
@@ -2179,7 +2181,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                     if (alwaysInMiddle) {
                         oPanel1.PanelCamera.adjust(terminal.TerminalOrigami);
                     }
-                    oPanel1.PanelCamera.setOrthogonalView();
+                    oPanel1.PanelCamera.setOrthogonalView(0);
                     EditorState = ControlState.KESZENLET;
                     scroll_angle = 0;
                     oPanel1.repaint();
@@ -2482,11 +2484,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     //
     private void ui_view_zoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_zoomActionPerformed
         
-        if (ui_view_zoom.isSelected()) {
-            zoomOnScroll = true;
-        } else {
-            zoomOnScroll = false;
-        }
+        zoomOnScroll = ui_view_zoom.isSelected();
     }//GEN-LAST:event_ui_view_zoomActionPerformed
 
     //
@@ -2494,13 +2492,33 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     //
     private void ui_help_aboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_help_aboutActionPerformed
 
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Origami Editor 3D Version " + Version + (char) 10
-                + "Copyright © 2014 Bágyoni-Szabó Attila <bagyoni.attila@gmail.com>" + (char) 10
-                + (char) 10
-                + "Origami Editor 3D is licensed under the GNU General Public License version 3." + (char) 10
-                + "See <http://www.gnu.org/licenses/> for more information." + (char) 10,
-                "About Origami Editor 3D", javax.swing.JOptionPane.PLAIN_MESSAGE);
+        final javax.swing.JEditorPane html = new javax.swing.JEditorPane("text/html", "<html><body>"
+            + "Origami Editor 3D Version " + Version + " <br>"
+                + "Copyright © 2014 Bágyoni-Szabó Attila (bagyoni.attila@users.sourceforge.net) <br>"
+                + "<br>"
+                + "Origami Editor 3D is licensed under the GNU General Public License version 3. <br>"
+            + "<a href=\"/res/LICENSE.txt\">Click here for more information.</a>"
+            + "</body></html>");
+        
+        html.setEditable(false);
+        html.setHighlighter(null);
+        html.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+                if (evt.getEventType().equals(javax.swing.event.HyperlinkEvent.EventType.ACTIVATED)) {
+                    java.util.Scanner inf = new java.util.Scanner(OrigamiEditorUI.this.getClass().getResourceAsStream(evt.getDescription()), "UTF-8");
+                    String text = "";
+                    while(inf.hasNextLine()) {
+                        text += inf.nextLine() + (char) 10;
+                    }
+                    jTextArea3.setText(text);
+                    jTextArea3.setCaretPosition(0);
+                    jTabbedPane1.setSelectedIndex(1);
+                    javax.swing.SwingUtilities.getWindowAncestor(html).dispose();
+                }
+            }
+        });
+        javax.swing.JOptionPane.showMessageDialog(this, html);
     }//GEN-LAST:event_ui_help_aboutActionPerformed
 
     ///
@@ -2770,7 +2788,12 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         try {
             
             java.io.InputStream is = getClass().getResourceAsStream("/res/osdoc_en.html");
-            java.io.File tmp = java.io.File.createTempFile("osdoc_en", "html");
+            java.io.File tmp = new java.io.File("osdoc_en.html");
+            long ind = 0;
+            while(tmp.exists()) {
+                tmp = new java.io.File("osdoc_en" + ind + ".html");
+                ++ind;
+            }
             tmp.deleteOnExit();
             java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp);
             int b;

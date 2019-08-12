@@ -1,5 +1,5 @@
 // This file is part of Origami Editor 3D.
-// Copyright (C) 2013 Bágyoni Attila <bagyoni.attila@gmail.com>
+// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <bagyoni.attila@gmail.com>
 // Origami Editor 3D is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -243,7 +243,7 @@ public class Origami {
             }
         }
     }
-    private PaperType papertype = PaperType.Square;
+    protected PaperType papertype = PaperType.Square;
 
     public PaperType papertype() {
         return papertype;
@@ -858,7 +858,6 @@ public class Origami {
         for (int[] par : cutpolygon_pairs) {
 
             if (!(kijeloles.contains(par[0]) || kijeloles.contains(par[1]))) {
-
                 polygons.set(par[1], new ArrayList<Integer>());
             }
         }

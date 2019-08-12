@@ -1,5 +1,5 @@
 // This file is part of Origami Editor 3D.
-// Copyright (C) 2013 Bágyoni Attila <bagyoni.attila@gmail.com>
+// Copyright (C) 2013, 2014, 2015 Bágyoni Attila <bagyoni.attila@gmail.com>
 // Origami Editor 3D is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -26,35 +26,37 @@ import origamieditor3d.resources.Dictionary;
  */
 public class OrigamiScriptTerminal {
 
-    public OrigamiScriptTerminal(Access szint) {
+    public OrigamiScriptTerminal(Access access) {
 
-        this.access = szint;
-        this.version = maxVersion;
-        this.TerminalCamera = new Camera(0, 0, 1);
-        this.corners = new ArrayList<>();
-        this.papertype = Origami.PaperType.Custom;
-        this.history = new ArrayList<>();
-        this.filename = null;
-        this.ppoint = null;
-        this.pnormal = null;
-        this.tracker = null;
-        this.phi = null;
-        this.title = null;
+        this.access = access;
+        version = maxVersion;
+        TerminalCamera = new Camera(0, 0, 1);
+        corners = new ArrayList<>();
+        papertype = Origami.PaperType.Custom;
+        history = new ArrayList<>();
+        filename = null;
+        ppoint = null;
+        pnormal = null;
+        tracker = null;
+        phi = null;
+        title = null;
+        
+        prompt = false;
     }
 
-    public OrigamiScriptTerminal(Access szint, String fajlnev) {
+    public OrigamiScriptTerminal(Access access, String filename) {
 
-        this(szint);
-        this.filename = fajlnev;
-        this.TerminalCamera = new Camera(0, 0, 1);
+        this(access);
+        this.filename = filename;
+        TerminalCamera = new Camera(0, 0, 1);
     }
 
     final private Integer maxVersion = 1;
     private Access access;
-	//
+    //
     // betöltött terminál mezők
     private Integer version = 1;
-	//
+    //
     // eltárolt terminál mezők
     private ArrayList<String> history;
 
@@ -64,7 +66,7 @@ public class OrigamiScriptTerminal {
     }
 
     private String filename;
-	//
+    //
     // betöltött szerkesztési mezők
     private double[] ppoint;
     private double[] pnormal;
@@ -73,7 +75,7 @@ public class OrigamiScriptTerminal {
     private ArrayList<double[]> corners;
     private Origami.PaperType papertype;
     private String title;
-	//
+    //
     // eltárolt szerkesztési mezők
     public Origami TerminalOrigami;
     public Camera TerminalCamera;
@@ -231,7 +233,7 @@ public class OrigamiScriptTerminal {
                 REFLECT();
             }
         });
-        
+
         Commands.put("cut", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -301,14 +303,14 @@ public class OrigamiScriptTerminal {
                 EXPORT_ORI();
             }
         });
-        
+
         Commands.put("root", new Command() {
             @Override
             public void execute(String... args) throws Exception {
                 ROOT();
             }
         });
-        
+
         Commands.put("debug", new Command() {
             @Override
             public void execute(String... args) throws Exception {
@@ -781,7 +783,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void UNDO() throws Exception {
 
         switch (version) {
@@ -863,7 +865,7 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void CUT1() throws Exception {
 
         if (ppoint != null && pnormal != null && tracker == null) {
@@ -943,12 +945,12 @@ public class OrigamiScriptTerminal {
 
     private void filename1(String... args) throws Exception {
 
-            if (args.length == 1) {
+        if (args.length == 1) {
 
-                filename = args[0];
-            } else {
-                throw OrigamiException.H007;
-            }
+            filename = args[0];
+        } else {
+            throw OrigamiException.H007;
+        }
     }
 
     private void title1(String... args) throws Exception {
@@ -1041,7 +1043,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void ROOT() throws Exception {
 
         switch (version) {
@@ -1052,7 +1054,7 @@ public class OrigamiScriptTerminal {
 
         }
     }
-    
+
     private void DEBUG() throws Exception {
 
         switch (version) {
@@ -1171,10 +1173,10 @@ public class OrigamiScriptTerminal {
                 java.io.FileInputStream fis = new java.io.FileInputStream(new java.io.File(filename));
                 int nxb;
                 while ((nxb = fis.read()) != -1) {
-                    bytesb.add((byte)nxb);
+                    bytesb.add((byte) nxb);
                 }
                 byte[] bytes = new byte[bytesb.size()];
-                for (int i=0; i<bytesb.size(); i++) {
+                for (int i = 0; i < bytesb.size(); i++) {
                     bytes[i] = bytesb.get(i);
                 }
                 this.TerminalOrigami = OrigamiIO.read_gen2(new java.io.ByteArrayInputStream(bytes));
@@ -1230,23 +1232,29 @@ public class OrigamiScriptTerminal {
 
         paramReset();
     }
-    
+
     private void ROOT1() throws Exception {
-        
+
         Object[] options = {Dictionary.getString("yes"), Dictionary.getString("no")};
+        prompt = true;
         if (javax.swing.JOptionPane.showOptionDialog(null, Dictionary.getString("enter-root"), Dictionary.getString("question"), javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options, options[1]) != javax.swing.JOptionPane.YES_OPTION) {
+            prompt = false;
             return;
         }
-       this.access = Access.ROOT;
+        prompt = false;
+        this.access = Access.ROOT;
     }
-    
+
     private void DEBUG1() throws Exception {
-        
+
         Object[] options = {Dictionary.getString("yes"), Dictionary.getString("no")};
+        prompt = true;
         if (javax.swing.JOptionPane.showOptionDialog(null, Dictionary.getString("enter-debug"), Dictionary.getString("question"), javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options, options[1]) != javax.swing.JOptionPane.YES_OPTION) {
+            prompt = false;
             return;
         }
-       access = Access.DEV;
+        prompt = false;
+        access = Access.DEV;
     }
 
     static public String obfuscate(String code) {
@@ -1301,53 +1309,81 @@ public class OrigamiScriptTerminal {
         return result;
     }
 
+    private boolean prompt;
+    
+    @SuppressWarnings("deprecation")
     public void execute(String code) throws Exception {
 
         history.add(code);
         code = obfuscate(code);
-        String[] szavak = code.split(" ");
+        final String[] szavak = code.split(" ");
 
-        try {
+        final Exception[] unreportedException = {null};
+        Thread exec = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-            for (int i = 0; i < szavak.length; i++) {
-
-                if (!(szavak[i].contains("[") || szavak[i].contains("]"))) {
-
-                    if (Commands.containsKey(szavak[i])) {
-
-                        Commands.get(szavak[i]).execute();
-                    }
-
-                    if (Params.containsKey(szavak[i])) {
-
-                        ArrayList<String> argumentumok = new ArrayList<>();
-                        for (int ii = i + 1; ii < szavak.length; ii++) {
-
-                            if (Commands.containsKey(szavak[ii])
-                                    || Params.containsKey(szavak[ii])) {
-                                break;
+                try {
+                    for (int i = 0; i < szavak.length; i++) {
+                        if (!(szavak[i].contains("[") || szavak[i].contains("]"))) {
+                            if (Commands.containsKey(szavak[i])) {
+                                Commands.get(szavak[i]).execute();
                             }
 
-                            if (!szavak[ii].equals("")) {
-                                argumentumok.add(szavak[ii].replace("[", "")
-                                        .replace("]", "").replace("_", " "));
+                            if (Params.containsKey(szavak[i])) {
+
+                                ArrayList<String> argumentumok = new ArrayList<>();
+                                for (int ii = i + 1; ii < szavak.length; ii++) {
+                                    if (Commands.containsKey(szavak[ii])
+                                            || Params.containsKey(szavak[ii])) {
+                                        break;
+                                    }
+                                    if (!szavak[ii].equals("")) {
+                                        argumentumok.add(szavak[ii].replace("[", "")
+                                                .replace("]", "").replace("_", " "));
+                                    }
+                                }
+
+                                String[] tombarg = new String[argumentumok.size()];
+                                for (int iii = 0; iii < argumentumok.size(); iii++) {
+                                    tombarg[iii] = argumentumok.get(iii);
+                                }
+
+                                Params.get(szavak[i]).execute(tombarg);
                             }
                         }
-
-                        String[] tombarg = new String[argumentumok.size()];
-                        for (int iii = 0; iii < argumentumok.size(); iii++) {
-
-                            tombarg[iii] = argumentumok.get(iii);
-                        }
-
-                        Params.get(szavak[i]).execute(tombarg);
                     }
+                } catch (Exception exc) {
+
+                    history.subList(history.size() - 1, history.size()).clear();
+                    unreportedException[0] = exc;
                 }
-            }
-        } catch (Exception exc) {
 
-            history.subList(history.size() - 1, history.size()).clear();
-            throw exc;
+            }
+        });
+
+        long timeout = System.currentTimeMillis() + 10000;
+        exec.start();
+        while (exec.isAlive()) {
+            if (System.currentTimeMillis() > timeout) {
+                if (prompt) {
+                    break;
+                }
+                Object[] options = {Dictionary.getString("timeout_stop"), Dictionary.getString("timeout_wait")};
+                if (javax.swing.JOptionPane.showOptionDialog(null, Dictionary.getString("timeout"), Dictionary.getString("question"), javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options, options[0]) == javax.swing.JOptionPane.YES_OPTION) {
+                    exec.stop();
+                    break;
+                } else {
+                    timeout = System.currentTimeMillis() + 10000;
+                }
+            } else {
+                //estimation of the longest time we feel instantaneous
+                Thread.sleep(80);
+            }
+        }
+
+        if (unreportedException[0] != null) {
+            throw unreportedException[0];
         }
     }
 
