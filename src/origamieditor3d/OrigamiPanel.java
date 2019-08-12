@@ -24,9 +24,9 @@ import javax.swing.JPanel;
  */
 public class OrigamiPanel extends JPanel implements BasicEditing {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public OrigamiPanel() {
+    public OrigamiPanel() {
 
         super();
         ready_to_paint = false;
@@ -46,6 +46,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         neusisOn = false;
         previewOn = false;
         displaymode = DisplayMode.SIMA;
+        beacons = null;
     }
     private Origami PanelOrigami;
     protected Camera PanelCamera;
@@ -63,6 +64,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
     private boolean neusisOn;
     private boolean previewOn;
     private DisplayMode displaymode;
+    private double[][] beacons;
 
     public enum DisplayMode {
 
@@ -127,9 +129,9 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
             tracker_im = new OrigamiTracker(
                     PanelOrigami,
                     new double[]{
-                ((double) tracker_x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
-                ((double) tracker_y - refkamera.yshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[1]) / refkamera.zoom()
-            }).trackPoint();
+                        ((double) tracker_x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
+                        ((double) tracker_y - refkamera.yshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[1]) / refkamera.zoom()
+                    }).trackPoint();
         } catch (Exception ex) {
         }
         trackerOn = true;
@@ -144,26 +146,42 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
             liner_triangle[liner_grab_index] = new OrigamiTracker(
                     PanelOrigami,
                     new double[]{
-                ((double) x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
-                ((double) y - refkamera.yshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[1]) / refkamera.zoom()
-            }).trackPoint();
+                        ((double) x - refkamera.xshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[0]) / refkamera.zoom(),
+                        ((double) y - refkamera.yshift + new Camera(refkamera.xshift, refkamera.yshift, refkamera.zoom()).projection0(refkamera.camera_pos)[1]) / refkamera.zoom()
+                    }).trackPoint();
         } catch (Exception ex) {
             liner_triangle[liner_grab_index] = null;
         }
         liner_grab_index++;
         liner_grab_index %= 3;
     }
-    
+
     public void setAlignmentPoint(int... point) {
         alignment_point = point;
     }
-    
-    public void unsetAlignmentPoint() {
+
+    public void resetAlignmentPoint() {
         alignment_point = null;
     }
-    
-    public void setAlignmentRadius(int radiusSQ2) {
-        alignment_radius = (int)Math.max(Math.sqrt(radiusSQ2/2), 5);
+
+    public void setAlignmentRadius(int radiusSQ) {
+        alignment_radius = (int) Math.max(Math.sqrt(radiusSQ), 5);
+    }
+
+    public void setBeacons(double[]... points2d) {
+        beacons = new double[points2d.length][];
+        for (int i = 0; i < points2d.length; i++) {
+            try {
+                beacons[i] = new OrigamiTracker(PanelOrigami, points2d[i]).trackPoint();
+            } catch (Exception ex) {
+                beacons = null;
+                break;
+            }
+        }
+    }
+
+    public void resetBeacons() {
+        beacons = null;
     }
 
     @Override
@@ -195,6 +213,28 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         PanelCamera.texture = tex;
     }
 
+    public boolean validateClickOnBeacon(int x, int y) {
+
+        try {
+            int dx = (int) (PanelCamera.projection(beacons[0])[0]) + PanelCamera.xshift - x;
+            int dy = (int) (PanelCamera.projection(beacons[0])[1]) + PanelCamera.yshift - y;
+            return dx * dx + dy * dy < alignment_radius * alignment_radius;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public boolean validateBeaconOverlap() {
+
+        try {
+            double dx = (PanelCamera.projection(beacons[0])[0]) - (PanelCamera.projection(beacons[1])[0]);
+            double dy = (PanelCamera.projection(beacons[0])[1]) - (PanelCamera.projection(beacons[1])[1]);
+            return dx * dx + dy * dy < 50;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     @Override
     public void paintComponent(Graphics g) {
 
@@ -218,11 +258,22 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
             }
         }
         if (alignment_point != null) {
-            
-            g.setColor(Color.DARK_GRAY);
-            g.fillOval(alignment_point[0]-alignment_radius, alignment_point[1]-alignment_radius, alignment_radius*2, alignment_radius*2);
+
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+            g2.setColor(Color.DARK_GRAY);
+            g2.setStroke(new java.awt.BasicStroke(3));
+            g2.drawOval(alignment_point[0] - alignment_radius, alignment_point[1] - alignment_radius, alignment_radius * 2, alignment_radius * 2);
+            g2.setStroke(new java.awt.BasicStroke(1));
         }
-        
+        if (beacons != null) {
+            g.setColor(Color.red);
+            for (int i = 0; i < beacons.length; i++) {
+                int x = (int) (PanelCamera.projection(beacons[i])[0]) + PanelCamera.xshift;
+                int y = (int) (PanelCamera.projection(beacons[i])[1]) + PanelCamera.yshift;
+                g.fillOval(x - alignment_radius, y - alignment_radius, alignment_radius * 2, alignment_radius * 2);
+            }
+        }
+
         g.setColor(Color.red);
         if (linerOn) {
 

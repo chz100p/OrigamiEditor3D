@@ -79,7 +79,17 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ui_file_new_dollarActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <Menu class="javax.swing.JMenu" name="ui_file_new_bases">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Bases"/>
+                  </Properties>
+                </Menu>
               </SubComponents>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="ui_file_sample">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Sample figures"/>
+              </Properties>
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="ui_file_open">
               <Properties>
@@ -315,17 +325,27 @@
             <Property name="text" type="java.lang.String" value="Help"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="ui_help_help">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Help Contents"/>
-              </Properties>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="ui_help_about">
               <Properties>
                 <Property name="text" type="java.lang.String" value="About"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ui_help_aboutActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="ui_tutorials">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Tutorials"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="ui_tutorials_internet">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="On the Internet"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ui_tutorials_internetActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>

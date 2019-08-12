@@ -12,7 +12,7 @@
 // along with this program.  If not, see <http:// www.gnu.org/licenses/>.
 package origamieditor3d.origami;
 
-import origamieditor3d.dictionary.Dictionary;
+import origamieditor3d.resources.Dictionary;
 
 /**
  * @author Attila Bágyoni <bagyoni.attila@gmail.com>
