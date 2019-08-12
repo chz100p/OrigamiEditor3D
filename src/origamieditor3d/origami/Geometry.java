@@ -1,6 +1,7 @@
 package origamieditor3d.origami;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Geometry {
 
@@ -170,13 +171,12 @@ public class Geometry {
      * winding order as viewed from their center.
      *
      * @param polygon
-     *            An {@link ArrayList} whose each element is an array containing
-     *            the 2-dimensional coordinates of a point.
+     *            A list containing the 2D coordinates of each point.
      * @return An {@link ArrayList} containing the same elements as {@code
      * polygon}, but in a counter-clockwise winding order.
      * @since 2013-10-11
      */
-    static public ArrayList<double[]> ccwWindingOrder(ArrayList<double[]> polygon) {
+    static public ArrayList<double[]> ccwWindingOrder(List<double[]> polygon) {
 
         ArrayList<double[]> ordered = new ArrayList<>();
         ArrayList<Double> angles = new ArrayList<>();
@@ -224,12 +224,11 @@ public class Geometry {
      * vertices of a convex polygon listed in a counter-clockwise winding order.
      *
      * @param polygon
-     *            An {@link ArrayList} whose each element is an array containing
-     *            the 2-dimensional coordinates of a point.
+     *            A list containing the 2D coordinates of each point.
      * @return As described above.
      * @since 2013-10-12
      */
-    static public boolean isConvex(ArrayList<double[]> polygon) {
+    static public boolean isConvex(List<double[]> polygon) {
     
         if (polygon.size() > 3) {
     
@@ -281,7 +280,16 @@ public class Geometry {
         }
     }
     
-    static public boolean point_in_polygon(double[] point, ArrayList<double[]> polygon) {
+    /**
+     * Determines whether the specified convex polygon contains the specified
+     * point.
+     * @param point The 2D coordinates of the point.
+     * @param polygon A list containing the 2D coordinates of each point of the
+     * convex polygon in a (counter-)clockwise winding order.
+     * @return true iff the point is in the polygon (including its border).
+     * @since 2017-03-04
+     */
+    static public boolean point_in_polygon(double[] point, List<double[]> polygon) {
         
         if (polygon.size() > 2) {
             
