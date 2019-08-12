@@ -45,7 +45,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
         paper_front_color = 0xFFFFFF;
         neusisOn = false;
         previewOn = false;
-        displaymode = DisplayMode.SIMA;
+        displaymode = DisplayMode.GRADIENT;
         beacons = null;
     }
     private Origami PanelOrigami;
@@ -69,7 +69,7 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
 
     public enum DisplayMode {
 
-        SIMA, UV, SEMMI
+        SIMA, UV, SEMMI, GRADIENT
     }
 
     @Override
@@ -255,6 +255,12 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
 
                 case UV:
                     PanelCamera.drawTexture(g, this.getWidth(), this.getHeight());
+                    PanelCamera.drawEdges(g, Color.black, PanelOrigami);
+                    break;
+                    
+                case GRADIENT:
+                    PanelCamera.drawGradient(g, paper_front_color, PanelOrigami);
+                    PanelCamera.drawEdges(g, Color.black, PanelOrigami);
                     break;
 
                 case SIMA:
@@ -271,8 +277,8 @@ public class OrigamiPanel extends JPanel implements BasicEditing {
 
             java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
             g2.setColor(Color.DARK_GRAY);
-            g2.setStroke(new java.awt.BasicStroke(3));
-            g2.drawOval(alignment_point[0] - alignment_radius, alignment_point[1] - alignment_radius, alignment_radius * 2, alignment_radius * 2);
+            g2.setStroke(new java.awt.BasicStroke(2));
+            g2.drawRect(alignment_point[0] - 3, alignment_point[1] - 3, 6, 6);
             g2.setStroke(new java.awt.BasicStroke(1));
         }
         /*

@@ -29,7 +29,7 @@ import origamieditor3d.resources.Models;
 public class OrigamiEditorUI extends javax.swing.JFrame {
 
     final static private long serialVersionUID = 1L;
-    final static private String Version = "1.0.4";
+    final static private String Version = "1.1.3";
     private Integer mouseX, mouseY;
     private int scroll_angle;
     private Integer liner1X, liner1Y, liner2X, liner2Y;
@@ -63,6 +63,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     final private javax.swing.JSlider timeSlider;
     private boolean changeListenerShutUp;
     final javax.swing.JPopupMenu foldingops;
+    private int snap2, snap3, snap4;
 
     private enum ControlState {
 
@@ -255,9 +256,14 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_edit_angle.setText(Dictionary.getString("anglebisector"));
         ui_edit_neusis.setText(Dictionary.getString("neusis"));
         ui_edit_snap.setText(Dictionary.getString("alignment"));
+        ui_edit_snap_1.setText(Dictionary.getString("alignment1"));
+        ui_edit_snap_2.setText(Dictionary.getString("alignment2"));
+        ui_edit_snap_3.setText(Dictionary.getString("alignment3"));
+        ui_edit_snap_4.setText(Dictionary.getString("alignment4"));
         ui_view.setText(Dictionary.getString("view"));
         ui_view_paper.setText(Dictionary.getString("papertex"));
         ui_view_paper_image.setText(Dictionary.getString("teximage"));
+        ui_view_paper_gradient.setText(Dictionary.getString("texgradient"));
         ui_view_paper_plain.setText(Dictionary.getString("texplain"));
         ui_view_paper_none.setText(Dictionary.getString("texnone"));
         ui_view_show.setText(Dictionary.getString("showprev"));
@@ -301,7 +307,6 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         liner2X = null;
         liner2Y = null;
         EditorState = (SecondaryState = ControlState.KESZENLET);
-        alignOn = true;
         alignment_radius = 100;
         zoomOnScroll = true;
         alwaysInMiddle = true;
@@ -557,21 +562,21 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         timeline.setVisible(true);
         changeListenerShutUp = false;
         foldingops = new javax.swing.JPopupMenu();
-        final javax.swing.JMenuItem reflect = new javax.swing.JMenuItem("Reflect");
+        final javax.swing.JMenuItem reflect = new javax.swing.JMenuItem(Dictionary.getString("reflect"));
         reflect.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 foldingops_reflect_actionPerformed(evt);
             }
         });
-        final javax.swing.JMenuItem rotate = new javax.swing.JMenuItem("Rotate");
+        final javax.swing.JMenuItem rotate = new javax.swing.JMenuItem(Dictionary.getString("rotate"));
         rotate.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 foldingops_rotate_actionPerformed(evt);
             }
         });
-        final javax.swing.JMenuItem cut = new javax.swing.JMenuItem("Cut");
+        final javax.swing.JMenuItem cut = new javax.swing.JMenuItem(Dictionary.getString("cut"));
         cut.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -581,6 +586,23 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         foldingops.add(reflect);
         foldingops.add(rotate);
         foldingops.add(cut);
+        
+        alignOn = ui_edit_snap_1.isSelected();
+        if (ui_edit_snap_2.isSelected()) {
+            snap2 = 2;
+        } else {
+            snap2 = 1;
+        }
+        if (ui_edit_snap_3.isSelected()) {
+            snap3 = 3;
+        } else {
+            snap3 = 1;
+        }
+        if (ui_edit_snap_4.isSelected()) {
+            snap4 = 4;
+        } else {
+            snap4 = 1;
+        }
     }
 
     /**
@@ -626,11 +648,16 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_edit_plane = new javax.swing.JMenuItem();
         ui_edit_angle = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        ui_edit_snap = new javax.swing.JMenu();
+        ui_edit_snap_1 = new javax.swing.JCheckBoxMenuItem();
+        ui_edit_snap_2 = new javax.swing.JCheckBoxMenuItem();
+        ui_edit_snap_3 = new javax.swing.JCheckBoxMenuItem();
+        ui_edit_snap_4 = new javax.swing.JCheckBoxMenuItem();
         ui_edit_neusis = new javax.swing.JCheckBoxMenuItem();
-        ui_edit_snap = new javax.swing.JCheckBoxMenuItem();
         ui_view = new javax.swing.JMenu();
         ui_view_paper = new javax.swing.JMenu();
         ui_view_paper_image = new javax.swing.JCheckBoxMenuItem();
+        ui_view_paper_gradient = new javax.swing.JCheckBoxMenuItem();
         ui_view_paper_plain = new javax.swing.JCheckBoxMenuItem();
         ui_view_paper_none = new javax.swing.JCheckBoxMenuItem();
         ui_view_show = new javax.swing.JCheckBoxMenuItem();
@@ -876,6 +903,45 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_edit.add(ui_edit_angle);
         ui_edit.add(jSeparator3);
 
+        ui_edit_snap.setText("Snap to");
+
+        ui_edit_snap_1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+        ui_edit_snap_1.setSelected(true);
+        ui_edit_snap_1.setText("vertices");
+        ui_edit_snap_1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_edit_snap_1ActionPerformed(evt);
+            }
+        });
+        ui_edit_snap.add(ui_edit_snap_1);
+
+        ui_edit_snap_2.setSelected(true);
+        ui_edit_snap_2.setText("midpoints");
+        ui_edit_snap_2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_edit_snap_2ActionPerformed(evt);
+            }
+        });
+        ui_edit_snap.add(ui_edit_snap_2);
+
+        ui_edit_snap_3.setText("trisection points");
+        ui_edit_snap_3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_edit_snap_3ActionPerformed(evt);
+            }
+        });
+        ui_edit_snap.add(ui_edit_snap_3);
+
+        ui_edit_snap_4.setText("quadrisection points");
+        ui_edit_snap_4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_edit_snap_4ActionPerformed(evt);
+            }
+        });
+        ui_edit_snap.add(ui_edit_snap_4);
+
+        ui_edit.add(ui_edit_snap);
+
         ui_edit_neusis.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
         ui_edit_neusis.setText("Neusis Mode");
         ui_edit_neusis.addActionListener(new java.awt.event.ActionListener() {
@@ -884,16 +950,6 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
             }
         });
         ui_edit.add(ui_edit_neusis);
-
-        ui_edit_snap.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
-        ui_edit_snap.setSelected(true);
-        ui_edit_snap.setText("Alignment to vertices and midpoints");
-        ui_edit_snap.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ui_edit_snapActionPerformed(evt);
-            }
-        });
-        ui_edit.add(ui_edit_snap);
 
         jMenuBar1.add(ui_edit);
 
@@ -909,7 +965,15 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         });
         ui_view_paper.add(ui_view_paper_image);
 
-        ui_view_paper_plain.setSelected(true);
+        ui_view_paper_gradient.setSelected(true);
+        ui_view_paper_gradient.setText("Gradient");
+        ui_view_paper_gradient.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ui_view_paper_gradientActionPerformed(evt);
+            }
+        });
+        ui_view_paper.add(ui_view_paper_gradient);
+
         ui_view_paper_plain.setText("Plain");
         ui_view_paper_plain.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2191,9 +2255,25 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         timeSlider.setValue(terminal.TerminalOrigami.history_pointer());
     }//GEN-LAST:event_ui_edit_redoActionPerformed
 
-    private void ui_edit_snapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_snapActionPerformed
-        alignOn = !alignOn;
-    }//GEN-LAST:event_ui_edit_snapActionPerformed
+    //
+    //  SNAP TO VERTICES / IGAZÍTÁS CSÚCSOKHOZ
+    //
+    private void ui_edit_snap_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_snap_1ActionPerformed
+        
+        if (ui_edit_snap_1.isSelected()) {
+            
+            alignOn = true;
+            ui_edit_snap_2.setEnabled(true);
+            ui_edit_snap_3.setEnabled(true);
+            ui_edit_snap_4.setEnabled(true);
+        } else {
+            
+            alignOn = false;
+            ui_edit_snap_2.setEnabled(false);
+            ui_edit_snap_3.setEnabled(false);
+            ui_edit_snap_4.setEnabled(false);
+        }
+    }//GEN-LAST:event_ui_edit_snap_1ActionPerformed
 
     //
     //  NEW HEXAGONAL PAPER / ÚJ PAPÍR (HATSZÖG)
@@ -2393,6 +2473,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_view_paper_plain.setSelected(true);
         ui_view_paper_image.setSelected(false);
         ui_view_paper_none.setSelected(false);
+        ui_view_paper_gradient.setSelected(false);
         oPanel1.repaint();
     }//GEN-LAST:event_ui_view_paper_plainActionPerformed
 
@@ -2400,7 +2481,12 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     //  ZOOM ON SCROLL / GÖRGETÉSRE NAGYÍT
     //
     private void ui_view_zoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_zoomActionPerformed
-        zoomOnScroll = !zoomOnScroll;
+        
+        if (ui_view_zoom.isSelected()) {
+            zoomOnScroll = true;
+        } else {
+            zoomOnScroll = false;
+        }
     }//GEN-LAST:event_ui_view_zoomActionPerformed
 
     //
@@ -2480,7 +2566,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ui_file_saveActionPerformed
 
     //
-    // MINDIG KÖZÉPEN
+    // ALWAYS IN THE MIDDLE / MINDIG KÖZÉPEN
     //
     private void ui_view_bestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_bestActionPerformed
 
@@ -2497,34 +2583,44 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ui_view_bestActionPerformed
 
     //
-    // NEUSZISZ MÓD
+    // NEUSIS MODE / NEUSZISZ MÓD
     //
     private void ui_edit_neusisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_neusisActionPerformed
 
-        neusisOn = !neusisOn;
-        if (neusisOn) {
+        if (ui_edit_neusis.isSelected()) {
+            
             oPanel1.neusisOn();
+            neusisOn = true;
+            ui_view_show.setSelected(true);
+            oPanel1.previewOn();
+            previewOn = true;
         } else {
+            
             oPanel1.neusisOff();
+            neusisOn = false;
+            ui_view_show.setSelected(false);
+            oPanel1.previewOff();
+            previewOn = false;
         }
         oPanel1.repaint();
     }//GEN-LAST:event_ui_edit_neusisActionPerformed
 
     //
-    // ELŐNÉZET
+    // PREVIEW / ELŐNÉZET
     //
     private void ui_view_showActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_showActionPerformed
 
-        previewOn = !previewOn;
-        if (previewOn) {
+        if (ui_view_show.isSelected()) {
             oPanel1.previewOn();
+            previewOn = true;
         } else {
             oPanel1.previewOff();
+            previewOn = false;
         }
     }//GEN-LAST:event_ui_view_showActionPerformed
 
     //
-    // UV PAPÍR
+    // UV PAPER / UV PAPÍR
     //
     private void ui_view_paper_imageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_paper_imageActionPerformed
 
@@ -2561,6 +2657,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                         ui_view_paper_image.setSelected(true);
                         ui_view_paper_plain.setSelected(false);
                         ui_view_paper_none.setSelected(false);
+                        ui_view_paper_gradient.setSelected(false);
                         oPanel1.update(terminal.TerminalOrigami);
                         oPanel1.repaint();
 
@@ -2602,6 +2699,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
                         ui_view_paper_image.setSelected(true);
                         ui_view_paper_plain.setSelected(false);
                         ui_view_paper_none.setSelected(false);
+                        ui_view_paper_gradient.setSelected(false);
                         oPanel1.update(terminal.TerminalOrigami);
                         oPanel1.repaint();
                     } catch (Exception ex) {
@@ -2616,13 +2714,14 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
             ui_view_paper_image.setSelected(true);
             ui_view_paper_plain.setSelected(false);
             ui_view_paper_none.setSelected(false);
+            ui_view_paper_gradient.setSelected(false);
             oPanel1.update(terminal.TerminalOrigami);
             oPanel1.repaint();
         }
     }//GEN-LAST:event_ui_view_paper_imageActionPerformed
 
     //
-    //  ÜRES PAPÍR
+    //  EMPTY PAPER / ÜRES PAPÍR
     //
     private void ui_view_paper_noneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_paper_noneActionPerformed
 
@@ -2630,13 +2729,20 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         ui_view_paper_none.setSelected(true);
         ui_view_paper_image.setSelected(false);
         ui_view_paper_plain.setSelected(false);
+        ui_view_paper_gradient.setSelected(false);
         oPanel1.repaint();
     }//GEN-LAST:event_ui_view_paper_noneActionPerformed
 
+    //
+    //  TIMELINE / IDŐVONAL
+    //
     private void ui_view_timelineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_timelineActionPerformed
         timeline.setVisible(true);
     }//GEN-LAST:event_ui_view_timelineActionPerformed
 
+    //
+    //  TUTORIALS / TUTORIALOK
+    //
     @SuppressWarnings("empty-statement")
     private void ui_tutorials_internetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_tutorials_internetActionPerformed
 
@@ -2656,6 +2762,9 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ui_tutorials_internetActionPerformed
 
+    //
+    //  DOCUMENTATION / DOKUMENTÁCIÓ
+    //
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         
         try {
@@ -2674,6 +2783,56 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage());
         }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    //
+    //  GRADIENT PAPER / ÁRNYALT PAPÍR
+    //
+    private void ui_view_paper_gradientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_view_paper_gradientActionPerformed
+        
+        oPanel1.setDisplaymode(OrigamiPanel.DisplayMode.GRADIENT);
+        ui_view_paper_gradient.setSelected(true);
+        ui_view_paper_none.setSelected(false);
+        ui_view_paper_image.setSelected(false);
+        ui_view_paper_plain.setSelected(false);
+        
+        oPanel1.repaint();
+    }//GEN-LAST:event_ui_view_paper_gradientActionPerformed
+
+    //
+    //  SNAP TO MIDPOINTS / IGAZÍTÁS SZAKASZFELEZŐKHÖZ
+    //
+    private void ui_edit_snap_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_snap_2ActionPerformed
+        
+        if (ui_edit_snap_2.isSelected()) {
+            snap2 = 2;
+        } else {
+            snap2 = 1;
+        }
+    }//GEN-LAST:event_ui_edit_snap_2ActionPerformed
+
+    //
+    //  SNAP TO TRISECTION POINTS / IGAZÍTÁS HARMADOLÓPONTOKHOZ
+    //
+    private void ui_edit_snap_3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_snap_3ActionPerformed
+        
+        if (ui_edit_snap_3.isSelected()) {
+            snap3 = 3;
+        } else {
+            snap3 = 1;
+        }
+    }//GEN-LAST:event_ui_edit_snap_3ActionPerformed
+
+    //
+    //  SNAP TO QUADRISECTION POINTS / IGAZÍTÁS NEGYEDELŐPONTOKHOZ
+    //
+    private void ui_edit_snap_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ui_edit_snap_4ActionPerformed
+        
+        if (ui_edit_snap_4.isSelected()) {
+            snap4 = 4;
+        } else {
+            snap4 = 1;
+        }
+    }//GEN-LAST:event_ui_edit_snap_4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -2710,7 +2869,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         int v1ujX = -1;
         int v1ujY = -1;
 
-        for (int[] osztohely : oPanel1.PanelCamera.alignmentPoints(terminal.TerminalOrigami)) {
+        for (int[] osztohely : oPanel1.PanelCamera.alignmentPoints(terminal.TerminalOrigami, snap2, snap3, snap4)) {
 
             if ((liner1X - oPanel1.PanelCamera.xshift - osztohely[0])
                     * (liner1X - oPanel1.PanelCamera.xshift - osztohely[0])
@@ -2735,7 +2894,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
         int v2ujX = -1;
         int v2ujY = -1;
 
-        for (int[] osztohely : oPanel1.PanelCamera.alignmentPoints(terminal.TerminalOrigami)) {
+        for (int[] osztohely : oPanel1.PanelCamera.alignmentPoints(terminal.TerminalOrigami, snap2, snap3, snap4)) {
 
             if ((liner2X - oPanel1.PanelCamera.xshift - osztohely[0])
                     * (liner2X - oPanel1.PanelCamera.xshift - osztohely[0])
@@ -2803,7 +2962,11 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem ui_edit_neusis;
     private javax.swing.JMenuItem ui_edit_plane;
     private javax.swing.JMenuItem ui_edit_redo;
-    private javax.swing.JCheckBoxMenuItem ui_edit_snap;
+    private javax.swing.JMenu ui_edit_snap;
+    private javax.swing.JCheckBoxMenuItem ui_edit_snap_1;
+    private javax.swing.JCheckBoxMenuItem ui_edit_snap_2;
+    private javax.swing.JCheckBoxMenuItem ui_edit_snap_3;
+    private javax.swing.JCheckBoxMenuItem ui_edit_snap_4;
     private javax.swing.JMenuItem ui_edit_undo;
     private javax.swing.JMenu ui_file;
     private javax.swing.JMenu ui_file_export;
@@ -2827,6 +2990,7 @@ public class OrigamiEditorUI extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem ui_view_best;
     private javax.swing.JMenuItem ui_view_options;
     private javax.swing.JMenu ui_view_paper;
+    private javax.swing.JCheckBoxMenuItem ui_view_paper_gradient;
     private javax.swing.JCheckBoxMenuItem ui_view_paper_image;
     private javax.swing.JCheckBoxMenuItem ui_view_paper_none;
     private javax.swing.JCheckBoxMenuItem ui_view_paper_plain;
