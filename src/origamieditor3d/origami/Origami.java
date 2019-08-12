@@ -17,11 +17,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * Egy konvex lapokból álló merev origami modellt reprezentál. Metódusokat nyújt
- * az origami módosítására diszkrét lépésekben.
- * <p> A könnyebb használhatóság érdekében elérhetô belôle néhány statikus
- * eljárás is, amelyekkel jelen osztály vektortárolási formátumában megadott
- * háromdimenziós vektorokon hajthatunk végre vektormûveleteket.
+ * Represents a three-dimensional rigid origami model consisting
+ * of convex polygonal faces. Provides methods to manipulate the
+ * model by intersecting it with a given plane, and then
+ * transforming one or more connected parts of the paper that are
+ * bound by this plane, by reflection or rotation.
  *
  * @author Attila Bágyoni <bagyoni.attila@gmail.com>
  * @since 2013-01-14
@@ -41,7 +41,7 @@ public class Origami {
         polygons = new ArrayList<>();
         polygons_size = 0;
         history = new ArrayList<>(Arrays.asList(new double[][]{}));
-        history_size = 0;
+        history_pointer = 0;
         this.papertype = papertype;
         reset();
     }
@@ -59,7 +59,7 @@ public class Origami {
         polygons = new ArrayList<>();
         polygons_size = 0;
         this.history = history;
-        history_size = this.history.size();
+        history_pointer = this.history.size();
         this.papertype = papertype;
         reset();
     }
@@ -79,7 +79,7 @@ public class Origami {
         polygons = new ArrayList<>();
         polygons_size = 0;
         history = new ArrayList<>(Arrays.asList(new double[][]{}));
-        history_size = 0;
+        history_pointer = 0;
         papertype = PaperType.Custom;
         this.corners = ccwWindingOrder(corners);
         if (!isConvex(this.corners)) {
@@ -103,7 +103,7 @@ public class Origami {
         polygons = new ArrayList<>();
         polygons_size = 0;
         this.history = history;
-        history_size = this.history.size();
+        history_pointer = this.history.size();
         papertype = PaperType.Custom;
         this.corners = ccwWindingOrder(corners);
         if (!isConvex(this.corners)) {
@@ -158,7 +158,10 @@ public class Origami {
         return history;
     }
 
-    protected int history_size;
+    protected int history_pointer;
+    public int history_pointer() {
+    	return history_pointer;
+    }
 
     /**
      * A(z) {@linkplain Origami#reset()} metódusban elérhetô papírméretek
@@ -280,16 +283,16 @@ public class Origami {
         double konst = ppoint[0] * pnormal[0] + ppoint[1] * pnormal[1] + ppoint[2] * pnormal[2];
         boolean innen = false, tul = false;
 
-        if (A[0] * pnormal[0] + A[1] * pnormal[1] + A[2] * pnormal[2] - konst > 0.00000001) {
+        if ((A[0] * pnormal[0] + A[1] * pnormal[1] + A[2] * pnormal[2] - konst) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) > 0.00000001) {
             innen = true;
         }
-        if (A[0] * pnormal[0] + A[1] * pnormal[1] + A[2] * pnormal[2] - konst < -0.00000001) {
+        if ((A[0] * pnormal[0] + A[1] * pnormal[1] + A[2] * pnormal[2] - konst) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) < -0.00000001) {
             tul = true;
         }
-        if (B[0] * pnormal[0] + B[1] * pnormal[1] + B[2] * pnormal[2] - konst > 0.00000001) {
+        if ((B[0] * pnormal[0] + B[1] * pnormal[1] + B[2] * pnormal[2] - konst) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) > 0.00000001) {
             innen = true;
         }
-        if (B[0] * pnormal[0] + B[1] * pnormal[1] + B[2] * pnormal[2] - konst < -0.00000001) {
+        if ((B[0] * pnormal[0] + B[1] * pnormal[1] + B[2] * pnormal[2] - konst) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) < -0.00000001) {
             tul = true;
         }
 
@@ -390,9 +393,9 @@ public class Origami {
 
             boolean egyik = false, masik = false;
             for (int i = 0; i < polygons.get(polygonIndex).size(); i++) {
-                if (scalar_product(vertices.get(polygons.get(polygonIndex).get(i)), pnormal) > scalar_product(ppoint, pnormal) + 0.00000001) {
+                if (scalar_product(vertices.get(polygons.get(polygonIndex).get(i)), pnormal) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) > scalar_product(ppoint, pnormal) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) + 0.00000001) {
                     egyik = true;
-                } else if (scalar_product(vertices.get(polygons.get(polygonIndex).get(i)), pnormal) < scalar_product(ppoint, pnormal) - 0.00000001) {
+                } else if (scalar_product(vertices.get(polygons.get(polygonIndex).get(i)), pnormal) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) < scalar_product(ppoint, pnormal) / Math.sqrt(Math.max(scalar_product(pnormal, pnormal), 1)) - 0.00000001) {
                     masik = true;
                 }
                 if (egyik && masik) {
@@ -869,7 +872,7 @@ public class Origami {
     public void reflectionFold(double[] ppoint, double[] pnormal) {
 
         //naplózás
-        history.subList(history_size, history.size()).clear();
+        history.subList(history_pointer, history.size()).clear();
         history.add(new double[]{
             1,
             ppoint[0],
@@ -879,7 +882,7 @@ public class Origami {
             pnormal[1],
             pnormal[2]
         });
-        history_size++;
+        history_pointer++;
         //horpasztás
         internalReflectionFold(ppoint, pnormal);
     }
@@ -887,7 +890,7 @@ public class Origami {
     public int rotationFold(double[] ppoint, double[] pnormal, int phi) {
 
         //naplózás
-        history.subList(history_size, history.size()).clear();
+        history.subList(history_pointer, history.size()).clear();
         history.add(new double[]{
             2,
             ppoint[0],
@@ -898,7 +901,7 @@ public class Origami {
             pnormal[2],
             (double) phi
         });
-        history_size++;
+        history_pointer++;
         //hajtás
         return internalRotationFold(ppoint, pnormal, phi);
     }
@@ -906,7 +909,7 @@ public class Origami {
     public void reflectionFold(double[] ppoint, double[] pnormal, int polygonIndex) {
 
         //naplózás
-        history.subList(history_size, history.size()).clear();
+        history.subList(history_pointer, history.size()).clear();
         history.add(new double[]{
             3,
             ppoint[0],
@@ -917,7 +920,7 @@ public class Origami {
             pnormal[2],
             (double) polygonIndex
         });
-        history_size++;
+        history_pointer++;
         //horpasztás
         internalReflectionFold(ppoint, pnormal, polygonIndex);
     }
@@ -925,7 +928,7 @@ public class Origami {
     public void rotationFold(double[] ppoint, double[] pnormal, int phi, int polygonIndex) {
 
         //naplózás
-        history.subList(history_size, history.size()).clear();
+        history.subList(history_pointer, history.size()).clear();
         history.add(new double[]{
             4,
             ppoint[0],
@@ -937,7 +940,7 @@ public class Origami {
             (double) phi,
             (double) polygonIndex
         });
-        history_size++;
+        history_pointer++;
         //hajtás
         internalRotationFold(ppoint, pnormal, phi, polygonIndex);
     }
@@ -945,7 +948,7 @@ public class Origami {
     public void crease(double[] ppoint, double[] pnormal) {
 
         //naplózás
-        history.subList(history_size, history.size()).clear();
+        history.subList(history_pointer, history.size()).clear();
         history.add(new double[]{
             5,
             ppoint[0],
@@ -955,7 +958,7 @@ public class Origami {
             pnormal[1],
             pnormal[2]
         });
-        history_size++;
+        history_pointer++;
         //"hajtás"
         internalRotationFold(ppoint, pnormal, 0);
     }
@@ -1098,7 +1101,7 @@ public class Origami {
      */
     public void execute() {
 
-        for (int i=0; i<history_size; i++) {
+        for (int i=0; i<history_pointer; i++) {
 
             double[] parancs = history.get(i);
             if (parancs[0] == 1) {
@@ -1159,10 +1162,10 @@ public class Origami {
      */
     public void undo() {
 
-        if (history_size > 0) {
-            history_size--;
-            while (0 < history_size ? history.get(history_size - 1)[0] == 5d : false) {
-                history_size--;
+        if (history_pointer > 0) {
+            history_pointer--;
+            while (0 < history_pointer ? history.get(history_pointer - 1)[0] == 5d : false) {
+                history_pointer--;
             }
             reset();
             execute();
@@ -1179,8 +1182,8 @@ public class Origami {
      */
     public void undo(int steps) {
 
-        if (history_size >= steps) {
-            history_size -= steps;
+        if (history_pointer >= steps) {
+            history_pointer -= steps;
             reset();
             execute();
         }
@@ -1188,12 +1191,21 @@ public class Origami {
 
     public void redo() {
 
-        if (history.size() > history_size) {
+        if (history.size() > history_pointer) {
 
-            history_size++;
-            while(history.get(history_size - 1)[0] == 5d) {
-                history_size++;
+            history_pointer++;
+            while(history.get(history_pointer - 1)[0] == 5d) {
+                history_pointer++;
             }
+            reset();
+            execute();
+        }
+    }
+    
+    public void redo(int steps) {
+    	
+    	if (history_pointer + steps <= history.size()) {
+            history_pointer += steps;
             reset();
             execute();
         }
@@ -1201,9 +1213,9 @@ public class Origami {
 
     public void redoAll() {
 
-        if (history.size() > history_size) {
+        if (history.size() > history_pointer) {
 
-            history_size = history.size();
+            history_pointer = history.size();
             reset();
             execute();
         }

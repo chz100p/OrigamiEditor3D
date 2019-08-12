@@ -25,7 +25,7 @@ public class TrackedOrigami extends Origami {
 
         super(origami.corners(), origami.history);
         trackerpont = vertices_size;
-        history_size = origami.history_size;
+        history_pointer = origami.history_pointer;
         addVertex(new double[]{tracker[0], tracker[1], 0});
         add2dVertex(new double[]{tracker[0], tracker[1], 0});
         ArrayList<Integer> sokszog0 = (ArrayList<Integer>) polygons.get(0).clone();

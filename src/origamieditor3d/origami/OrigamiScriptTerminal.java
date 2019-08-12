@@ -1097,11 +1097,21 @@ public class OrigamiScriptTerminal {
 
     private void DIAGNOSTICS1() throws Exception {
 
-        if (this.access == Access.DEV) {
+        if (this.access != Access.DEV) {
 
-            System.out.println("TerminalOrigami.vertices_size = " + Integer.toString(TerminalOrigami.vertices_size()));
-            System.out.println("TerminalOrigami.polygons_size = " + Integer.toString(TerminalOrigami.polygons_size()));
-            System.out.println("TerminalOrigami.corners =");
+            System.out.println("TerminalOrigami.vertices_size == " + Integer.toString(TerminalOrigami.vertices_size()));
+            System.out.println("TerminalOrigami.polygons_size == " + Integer.toString(TerminalOrigami.polygons_size()));
+            for (int i=0; i<TerminalOrigami.polygons_size(); i++) {
+            	
+            	System.out.print("polygon " + i + ": ");
+            	for (int vert : TerminalOrigami.polygons().get(i)) {
+            		
+            		System.out.print(vert);
+            		System.out.print(" ");
+            	}
+            	System.out.println();
+            }
+            System.out.println("TerminalOrigami.corners:");
             for (double[] pont : TerminalOrigami.corners()) {
 
                 System.out.println(Double.toString(pont[0]) + " " + Double.toString(pont[1]));
