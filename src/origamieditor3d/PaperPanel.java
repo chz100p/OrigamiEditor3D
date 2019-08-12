@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import origamieditor3d.origami.Camera;
 import origamieditor3d.origami.Geometry;
 import origamieditor3d.origami.Origami;
-import origamieditor3d.origami.OrigamiTracker;
 
 /**
  * @author Attila Bágyoni (ba-sz-at@users.sourceforge.net)
@@ -37,7 +36,7 @@ public class PaperPanel extends JPanel implements BasicEditing {
     private double[] liner_point, liner_normal;
     private Integer[][] liner_triangle;
     private int liner_grab_index;
-    private LinerMode linerMode;
+    private RulerMode linerMode;
 
     public Integer tracker_x() {
         return tracker_x;
@@ -76,7 +75,7 @@ public class PaperPanel extends JPanel implements BasicEditing {
         liner_grab_index = 0;
         liner_point = null;
         liner_normal = null;
-        linerMode = LinerMode.Normal;
+        linerMode = RulerMode.Normal;
     }
 
     @Override
@@ -111,12 +110,12 @@ public class PaperPanel extends JPanel implements BasicEditing {
     }
 
     @Override
-    public void setLinerMode(LinerMode mode) {
+    public void setRulerMode(RulerMode mode) {
         linerMode = mode;
     }
 
     @Override
-    public void linerOn(Camera refcam, int x1, int y1, int x2, int y2) {
+    public void rulerOn(Camera refcam, int x1, int y1, int x2, int y2) {
 
         double pontX = ((double) x2 - refcam.xshift) / refcam.zoom();
         double pontY = ((double) y2 - refcam.yshift) / refcam.zoom();
@@ -138,7 +137,7 @@ public class PaperPanel extends JPanel implements BasicEditing {
             refcam.axis_x()[1] / refcam.zoom() * pont1X + refcam.axis_y()[1] / refcam.zoom() * pont1Y + refcam.camera_pos()[1],
             refcam.axis_x()[2] / refcam.zoom() * pont1X + refcam.axis_y()[2] / refcam.zoom() * pont1Y + refcam.camera_pos()[2]
         };
-        if (linerMode == LinerMode.Neusis) {
+        if (linerMode == RulerMode.Neusis) {
             vonalzoNV = Geometry.vector(vonalzoPT, vonalzoPT1);
         }
         liner_point = vonalzoPT;
@@ -146,7 +145,7 @@ public class PaperPanel extends JPanel implements BasicEditing {
     }
 
     @Override
-    public void linerOff() {
+    public void rulerOff() {
         liner_point = (liner_normal = null);
     }
 
@@ -161,26 +160,23 @@ public class PaperPanel extends JPanel implements BasicEditing {
 
             try {
 
-                double[] pt1 = new OrigamiTracker(
-                        PanelOrigami,
+                double[] pt1 = PanelOrigami.find3dImageOf(
                         new double[]{
                             ((double) liner_triangle[0][0] - PanelCamera.xshift + PanelCamera.projection0(PanelCamera.camera_pos())[0]) / PanelCamera.zoom(),
                             ((double) liner_triangle[0][1] - PanelCamera.yshift + PanelCamera.projection0(PanelCamera.camera_pos())[1]) / PanelCamera.zoom()
-                        }).trackPoint(),
-                        pt2 = new OrigamiTracker(
-                                PanelOrigami,
+                        }),
+                        pt2 = PanelOrigami.find3dImageOf(
                                 new double[]{
                                     ((double) liner_triangle[1][0] - PanelCamera.xshift + PanelCamera.projection0(PanelCamera.camera_pos())[0]) / PanelCamera.zoom(),
                                     ((double) liner_triangle[1][1] - PanelCamera.yshift + PanelCamera.projection0(PanelCamera.camera_pos())[1]) / PanelCamera.zoom()
-                                }).trackPoint(),
-                        pt3 = new OrigamiTracker(
-                                PanelOrigami,
+                                }),
+                        pt3 = PanelOrigami.find3dImageOf(
                                 new double[]{
                                     ((double) liner_triangle[2][0] - PanelCamera.xshift + PanelCamera.projection0(PanelCamera.camera_pos())[0]) / PanelCamera.zoom(),
                                     ((double) liner_triangle[2][1] - PanelCamera.yshift + PanelCamera.projection0(PanelCamera.camera_pos())[1]) / PanelCamera.zoom()
-                                }).trackPoint();
+                                });
 
-                if (linerMode == LinerMode.Planethrough) {
+                if (linerMode == RulerMode.Planethrough) {
                     if (Geometry.vector_length(Geometry.vector_product(
                             Geometry.vector(pt2, pt1), Geometry.vector(pt3, pt1))) != 0d) {
 
@@ -188,15 +184,15 @@ public class PaperPanel extends JPanel implements BasicEditing {
                         liner_normal = Geometry.vector_product(Geometry.vector(pt2, pt1),
                                 Geometry.vector(pt3, pt1));
                     } else {
-                        linerOff();
+                        rulerOff();
                     }
-                } else if (linerMode == LinerMode.Angle_bisector) {
+                } else if (linerMode == RulerMode.Angle_bisector) {
                     liner_point = pt2;
                     liner_normal = Geometry.vector(
                             Geometry.length_to_100(Geometry.vector(pt1, pt2)),
                             Geometry.length_to_100(Geometry.vector(pt3, pt2)));
                     if (Geometry.vector_length(liner_normal) == 0.) {
-                        linerOff();
+                        rulerOff();
                     }
                 }
             } catch (Exception ex) {
