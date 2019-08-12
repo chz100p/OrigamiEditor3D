@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import origamieditor3d.resources.Dictionary;
+import origamieditor3d.resources.Instructor;
 
 /**
  * Represents an OrigamiScript engine. To learn more about OrigamiScript, see
@@ -105,7 +106,7 @@ public class OrigamiScriptTerminal {
         version = maxVersion;
         history.clear();
 
-        TerminalOrigami.undo(TerminalOrigami.history.size());
+        TerminalOrigami.undo(TerminalOrigami.history().size());
         TerminalCamera = new Camera(0, 0, 1);
     }
 
@@ -122,7 +123,6 @@ public class OrigamiScriptTerminal {
     }
 
     public enum Access {
-
         USER, ROOT, DEV
     }
 
@@ -202,6 +202,13 @@ public class OrigamiScriptTerminal {
             @Override
             public void execute(String... args) throws Exception {
                 version(args);
+            }
+        });
+        
+        Params.put("locale", new Command() {
+            @Override
+            public void execute(String... args) throws Exception {
+                locale(args);
             }
         });
 
@@ -891,9 +898,8 @@ public class OrigamiScriptTerminal {
     private void ROTATE1() throws Exception {
 
         if (ppoint != null && pnormal != null && phi != null && tracker == null) {
-            if (TerminalOrigami.rotationFold(ppoint, pnormal, phi) == 1) {
-                undo(1);
-            }
+            TerminalOrigami.rotationFold(ppoint, pnormal, phi);
+            
         } else if (ppoint != null && pnormal != null && phi != null
                 && tracker != null) {
 
@@ -952,7 +958,7 @@ public class OrigamiScriptTerminal {
 
     private void UNDO1() throws Exception {
 
-        if (TerminalOrigami.history.size() > 0) {
+        if (TerminalOrigami.history().size() > 0) {
             TerminalOrigami.undo();
         } else {
             undo(1);
@@ -979,6 +985,21 @@ public class OrigamiScriptTerminal {
             if (ver.length == 1) {
 
                 version = Integer.parseInt(ver[0]);
+            } else {
+                throw OrigamiException.H007;
+            }
+        }
+    }
+    
+    private void locale(String... args) throws Exception {
+
+        if (args.length == 1) {
+
+            String[] loc = args[0].split(" ");
+
+            if (loc.length == 2) {
+                Dictionary.setLocale(new java.util.Locale(loc[0], loc[1]));
+                Instructor.setLocale(new java.util.Locale(loc[0], loc[1]));
             } else {
                 throw OrigamiException.H007;
             }

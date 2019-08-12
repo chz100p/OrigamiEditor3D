@@ -34,7 +34,7 @@ public class Export {
     final static public int page_height = 842;
     final static public int figure_frame = 200;
 
-    static public int exportCTM(Origami origami, String filename, java.awt.image.BufferedImage texture) {
+    static public void exportCTM(Origami origami, String filename, java.awt.image.BufferedImage texture) throws Exception {
 
         try {
 
@@ -298,15 +298,12 @@ public class Export {
             str.close();
             kamera.unadjust(origami);
 
-            return 1;
-
         } catch (IOException exc) {
-
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 
-    static public int exportPDF(Origami origami, String filename, String title) {
+    static public void exportPDF(Origami origami, String filename, String title) throws Exception {
 
         try {
 
@@ -800,32 +797,32 @@ public class Export {
                 }
                 origami1.execute(i, 1);
                 if (i < origami1.history().size()) {
-                    if (origami1.history.get(i)[0] == 1) {
+                    if (origami1.history().get(i)[0] == 1) {
 
                         double[] ppoint = new double[]{
-                            origami1.history.get(i)[1],
-                            origami1.history.get(i)[2],
-                            origami1.history.get(i)[3]
+                            origami1.history().get(i)[1],
+                            origami1.history().get(i)[2],
+                            origami1.history().get(i)[3]
                         };
                         double[] pnormal = new double[]{
-                            origami1.history.get(i)[4],
-                            origami1.history.get(i)[5],
-                            origami1.history.get(i)[6]
+                            origami1.history().get(i)[4],
+                            origami1.history().get(i)[5],
+                            origami1.history().get(i)[6]
                         };
                         foldtypes.add(origami1.foldType(ppoint, pnormal));
-                    } else if (origami1.history.get(i)[0] == 3) {
+                    } else if (origami1.history().get(i)[0] == 3) {
 
                         double[] ppoint = new double[]{
-                            origami1.history.get(i)[1],
-                            origami1.history.get(i)[2],
-                            origami1.history.get(i)[3]
+                            origami1.history().get(i)[1],
+                            origami1.history().get(i)[2],
+                            origami1.history().get(i)[3]
                         };
                         double[] pnormal = new double[]{
-                            origami1.history.get(i)[4],
-                            origami1.history.get(i)[5],
-                            origami1.history.get(i)[6]
+                            origami1.history().get(i)[4],
+                            origami1.history().get(i)[5],
+                            origami1.history().get(i)[6]
                         };
-                        int polygonIndex = (int) origami1.history.get(i)[7];
+                        int polygonIndex = (int) origami1.history().get(i)[7];
                         foldtypes.add(origami1.foldType(ppoint, pnormal, polygonIndex));
                     } else {
                         foldtypes.add(null);
@@ -1177,13 +1174,13 @@ public class Export {
                                     utasitas = Instructor.getString("rotate_north", sorszam, szog + (int) origami1.history().get(i)[7]);
                                     break;
                                 case Camera.PDF_EAST:
-                                    utasitas = Instructor.getString("rotate_north", sorszam, szog + (int) origami1.history().get(i)[7]);
+                                    utasitas = Instructor.getString("rotate_east", sorszam, szog + (int) origami1.history().get(i)[7]);
                                     break;
                                 case Camera.PDF_SOUTH:
-                                    utasitas = Instructor.getString("rotate_north", sorszam, szog + (int) origami1.history().get(i)[7]);
+                                    utasitas = Instructor.getString("rotate_south", sorszam, szog + (int) origami1.history().get(i)[7]);
                                     break;
                                 case Camera.PDF_WEST:
-                                    utasitas = Instructor.getString("rotate_north", sorszam, szog + (int) origami1.history().get(i)[7]);
+                                    utasitas = Instructor.getString("rotate_west", sorszam, szog + (int) origami1.history().get(i)[7]);
                                     break;
                                 default:
                                     break;
@@ -1411,15 +1408,13 @@ public class Export {
 
             str.write(fajl.getBytes(Charset.forName("UTF-8")));
             str.close();
-            return 1;
 
         } catch (Exception exc) {
-            exc.printStackTrace();
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 
-    static public int exportGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) {
+    static public void exportGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) throws Exception {
 
         try (FileOutputStream fos = new FileOutputStream(filename)) {
 
@@ -1546,13 +1541,13 @@ public class Export {
 
             fos.write(0x3B);
             fos.close();
-            return 1;
+            
         } catch (Exception ex) {
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 
-    static public int exportRevolvingGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) {
+    static public void exportRevolvingGIF(Origami origami, Camera refcam, int color, int width, int height, String filename) throws Exception {
 
         try (FileOutputStream fos = new FileOutputStream(filename)) {
 
@@ -1619,7 +1614,7 @@ public class Export {
             for (int i = 0; i < 72; i++) {
 
                 gimg.clearRect(0, 0, width, height);
-                cam.drawFaces(gimg, color, origami1);
+                cam.drawGradient(gimg, color, origami1);
                 cam.drawEdges(gimg, java.awt.Color.black, origami1);
                 cam.rotate(10, 0);
 
@@ -1678,13 +1673,13 @@ public class Export {
 
             fos.write(0x3B);
             fos.close();
-            return 1;
+            
         } catch (Exception ex) {
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 
-    static public int exportPNG(Origami origami, String filename) {
+    static public void exportPNG(Origami origami, String filename) throws Exception {
 
         try {
 
@@ -1698,17 +1693,15 @@ public class Export {
             g.clearRect(0, 0, (int) origami.paperWidth(), (int) origami.paperHeight());
             new Camera((int) origami.paperWidth() / 2, (int) origami.paperHeight() / 2, 1).drawCreasePattern(g, Color.BLACK, origami);
 
-            if (javax.imageio.ImageIO.write(img, "png", png)) {
-                return 1;
-            } else {
-                return 0;
+            if (!javax.imageio.ImageIO.write(img, "png", png)) {
+                throw OrigamiException.H005;
             }
         } catch (Exception ex) {
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 
-    static public int exportJAR(Origami origami, String filename) {
+    static public void exportJAR(Origami origami, String filename) throws Exception {
 
         try {
 
@@ -1777,9 +1770,9 @@ public class Export {
 
             tempOri.delete();
             tempJar.delete();
-            return 1;
+            
         } catch (Exception ex) {
-            return 0;
+            throw OrigamiException.H005;
         }
     }
 }
