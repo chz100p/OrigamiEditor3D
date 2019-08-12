@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import origamieditor3d.resources.Dictionary;
 
 /**
  *
@@ -298,6 +299,20 @@ public class OrigamiScriptTerminal {
             @Override
             public void execute(String... args) throws Exception {
                 EXPORT_ORI();
+            }
+        });
+        
+        Commands.put("root", new Command() {
+            @Override
+            public void execute(String... args) throws Exception {
+                ROOT();
+            }
+        });
+        
+        Commands.put("debug", new Command() {
+            @Override
+            public void execute(String... args) throws Exception {
+                DEBUG();
             }
         });
     }
@@ -928,17 +943,12 @@ public class OrigamiScriptTerminal {
 
     private void filename1(String... args) throws Exception {
 
-        if (this.access == Access.ROOT || this.access == Access.DEV) {
-
             if (args.length == 1) {
 
                 filename = args[0];
             } else {
                 throw OrigamiException.H007;
             }
-        } else {
-            throw OrigamiException.H011;
-        }
     }
 
     private void title1(String... args) throws Exception {
@@ -1031,6 +1041,28 @@ public class OrigamiScriptTerminal {
 
         }
     }
+    
+    private void ROOT() throws Exception {
+
+        switch (version) {
+
+            default:
+                ROOT1();
+                break;
+
+        }
+    }
+    
+    private void DEBUG() throws Exception {
+
+        switch (version) {
+
+            default:
+                DEBUG1();
+                break;
+
+        }
+    }
 
     private void DIAGNOSTICS1() throws Exception {
 
@@ -1080,14 +1112,14 @@ public class OrigamiScriptTerminal {
                 try (BufferedReader br = new BufferedReader(new FileReader(
                         filename))) {
 
-                    String bajtok = "", sor;
-                    while ((sor = br.readLine()) != null) {
-                        bajtok += sor + " ";
+                    String bytes = "", line;
+                    while ((line = br.readLine()) != null) {
+                        bytes += line + " ";
                     }
 
-                    OrigamiScriptTerminal homokozo = new OrigamiScriptTerminal(
+                    OrigamiScriptTerminal sandbox = new OrigamiScriptTerminal(
                             OrigamiScriptTerminal.Access.USER, filename);
-                    homokozo.execute(bajtok);
+                    sandbox.execute(bytes);
                 }
             } else {
                 throw OrigamiException.H010;
@@ -1158,6 +1190,9 @@ public class OrigamiScriptTerminal {
 
         if (filename != null) {
 
+            if (new java.io.File(filename).exists() && access != Access.ROOT && access != Access.DEV) {
+                throw OrigamiException.H011;
+            }
             Export.exportCTM(TerminalOrigami, filename);
         } else {
             throw OrigamiException.H010;
@@ -1170,6 +1205,9 @@ public class OrigamiScriptTerminal {
 
         if (filename != null && title != null) {
 
+            if (new java.io.File(filename).exists() && access != Access.ROOT && access != Access.DEV) {
+                throw OrigamiException.H011;
+            }
             Export.exportPDF(TerminalOrigami, filename, title);
         } else {
             throw OrigamiException.H010;
@@ -1182,12 +1220,33 @@ public class OrigamiScriptTerminal {
 
         if (filename != null) {
 
+            if (new java.io.File(filename).exists() && access != Access.ROOT && access != Access.DEV) {
+                throw OrigamiException.H011;
+            }
             OrigamiIO.write_gen2(TerminalOrigami, filename);
         } else {
             throw OrigamiException.H010;
         }
 
         paramReset();
+    }
+    
+    private void ROOT1() throws Exception {
+        
+        Object[] options = {Dictionary.getString("yes"), Dictionary.getString("no")};
+        if (javax.swing.JOptionPane.showOptionDialog(null, Dictionary.getString("enter-root"), Dictionary.getString("question"), javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options, options[1]) != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+       this.access = Access.ROOT;
+    }
+    
+    private void DEBUG1() throws Exception {
+        
+        Object[] options = {Dictionary.getString("yes"), Dictionary.getString("no")};
+        if (javax.swing.JOptionPane.showOptionDialog(null, Dictionary.getString("enter-debug"), Dictionary.getString("question"), javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options, options[1]) != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+       access = Access.DEV;
     }
 
     static public String obfuscate(String code) {
